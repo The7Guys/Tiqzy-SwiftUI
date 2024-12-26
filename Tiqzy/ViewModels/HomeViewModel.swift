@@ -1,31 +1,14 @@
-import Combine
 import Foundation
 
 class HomeViewModel: ObservableObject {
-    @Published var events: [Event] = []
-    @Published var errorMessage: String? // Add this if you want to display errors
+    @Published var selectedLocation: String = "Current location"
+    @Published var selectedDate: String = "Today, 15 Oct"
+    @Published var notificationsCount: Int = 2
+    @Published var cities: [String] = ["Amsterdam", "Rotterdam", "Eindhoven", "Utrecht"]
+    @Published var categories: [String] = ["Museums", "Tours", "Events", "Activities"]
 
-    private let repository: EventRepositoryProtocol
-    private var cancellables = Set<AnyCancellable>()
-
-    init(repository: EventRepositoryProtocol = EventRepository()) {
-        self.repository = repository
-        fetchEvents()
-    }
-
-    func fetchEvents() {
-        repository.fetchEvents()
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { [weak self] completion in
-                switch completion {
-                case .failure(let error):
-                    self?.errorMessage = error.localizedDescription // Handle the error
-                case .finished:
-                    break
-                }
-            }, receiveValue: { [weak self] fetchedEvents in
-                self?.events = fetchedEvents
-            })
-            .store(in: &cancellables)
+    func performSearch() {
+        // Logic for handling search (e.g., updating state, API call, etc.)
+        print("Performing search for \(selectedLocation) on \(selectedDate)")
     }
 }

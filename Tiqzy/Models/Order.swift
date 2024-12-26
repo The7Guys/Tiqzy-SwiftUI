@@ -1,7 +1,16 @@
-//
-//  Order.swift
-//  Tiqzy
-//
-//  Created by Andrei on 12/12/2024.
-//
+import Foundation
+
+struct Order: Codable {
+    var emailAddress: String?
+    var userName: String
+    var userId: String
+    var orderItems: [OrderItem]
+
+    struct OrderItem: Codable {
+        var itemId: String
+        var quantity: Int
+        var timeslot: String
+        var price: Double
+    }
+}
 
