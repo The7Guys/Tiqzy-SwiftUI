@@ -1,8 +1,8 @@
 import Foundation
 
 class HomeViewModel: ObservableObject {
-    @Published var selectedLocation: String = "Current location"
-    @Published var selectedDate: String = "Today, 15 Oct"
+    @Published var selectedLocation: String = "Select Location"
+    @Published var selectedDate: String = "Select Date"
     @Published var notificationsCount: Int = 2
     @Published var cities: [City] = [
         .amsterdam,

@@ -28,100 +28,102 @@ struct LocationView: View {
             }
             .padding(.horizontal)
 
-            VStack(spacing: 12) {
-                // Option: Anywhere in Holland
-                Button(action: {
-                    onLocationSelected("Anywhere in Holland")
-                    dismiss()
-                }) {
-                    HStack(spacing: 12) {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Constants.Design.secondaryColor.opacity(0.1))
-                            .frame(width: 36, height: 36)
-                            .overlay(
-                                Image(systemName: "globe")
-                                    .font(.title2)
-                                    .foregroundColor(Constants.Design.secondaryColor)
-                            )
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Anywhere in Holland")
-                                .font(.custom("Poppins-SemiBold", size: 16))
-                                .foregroundColor(Constants.Design.secondaryColor)
-                        }
-                        Spacer()
-                    }
-                    .padding(.vertical, 8)
-                }
-
-                // Option: Current Location
-                Button(action: {
-                    onLocationSelected(viewModel.currentLocation)
-                    dismiss()
-                }) {
-                    HStack(spacing: 12) {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Constants.Design.secondaryColor.opacity(0.1))
-                            .frame(width: 36, height: 36)
-                            .overlay(
-                                Image(systemName: "mappin")
-                                    .font(.title2)
-                                    .foregroundColor(Constants.Design.secondaryColor)
-                            )
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Current location")
-                                .font(.custom("Poppins-Medium", size: 16))
-                                .foregroundColor(.black)
-                            Text(viewModel.currentLocation)
-                                .font(.custom("Poppins-Regular", size: 14))
-                                .foregroundColor(.gray)
-                        }
-                        Spacer()
-                    }
-                    .padding(.vertical, 8)
-                }
-            }
-            .padding(.horizontal)
-
-            // Display Filtered Cities While Typing
-            if !viewModel.filteredCities.isEmpty {
-                ScrollView {
+            // Main Content
+            Group {
+                if viewModel.isSearchQueryEmpty {
+                    // Options: Anywhere in Holland and Current Location
                     VStack(spacing: 12) {
-                        ForEach(viewModel.filteredCities, id: \.self) { city in
-                            Button(action: {
-                                onLocationSelected(city.description)
-                                dismiss()
-                            }) {
-                                HStack(spacing: 12) {
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Constants.Design.secondaryColor.opacity(0.1))
-                                        .frame(width: 36, height: 36)
-                                        .overlay(
-                                            Image(systemName: "mappin")
-                                                .font(.title2)
-                                                .foregroundColor(Constants.Design.secondaryColor)
-                                        )
+                        Button(action: {
+                            onLocationSelected("Anywhere in Holland")
+                            dismiss()
+                        }) {
+                            HStack(spacing: 12) {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Constants.Design.secondaryColor.opacity(0.1))
+                                    .frame(width: 36, height: 36)
+                                    .overlay(
+                                        Image(systemName: "globe")
+                                            .font(.title2)
+                                            .foregroundColor(Constants.Design.secondaryColor)
+                                    )
 
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(city.description)
-                                            .font(.custom("Poppins-Medium", size: 16))
-                                            .foregroundColor(.black)
-                                        Text(city.region)
-                                            .font(.custom("Poppins-Regular", size: 14))
-                                            .foregroundColor(.gray)
-                                    }
-                                    Spacer()
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Anywhere in Holland")
+                                        .font(.custom("Poppins-SemiBold", size: 16))
+                                        .foregroundColor(Constants.Design.secondaryColor)
                                 }
-                                .padding(.vertical, 8)
+                                Spacer()
+                            }
+                            .padding(.vertical, 8)
+                            .padding(.horizontal) // Ensures consistent alignment with city list
+                        }
+
+                        Button(action: {
+                            onLocationSelected(viewModel.currentLocation)
+                            dismiss()
+                        }) {
+                            HStack(spacing: 12) {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Constants.Design.secondaryColor.opacity(0.1))
+                                    .frame(width: 36, height: 36)
+                                    .overlay(
+                                        Image(systemName: "mappin")
+                                            .font(.title2)
+                                            .foregroundColor(Constants.Design.secondaryColor)
+                                    )
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Current location")
+                                        .font(.custom("Poppins-Medium", size: 16))
+                                        .foregroundColor(.black)
+                                    Text(viewModel.currentLocation)
+                                        .font(.custom("Poppins-Regular", size: 14))
+                                        .foregroundColor(.gray)
+                                }
+                                Spacer()
+                            }
+                            .padding(.vertical, 8)
+                            .padding(.horizontal) // Ensures consistent alignment with city list
+                        }
+                    }
+                } else {
+                    // Filtered Cities
+                    ScrollView {
+                        VStack(spacing: 12) {
+                            ForEach(viewModel.filteredCities, id: \.self) { city in
+                                Button(action: {
+                                    onLocationSelected(city.description)
+                                    dismiss()
+                                }) {
+                                    HStack(spacing: 12) {
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(Constants.Design.secondaryColor.opacity(0.1))
+                                            .frame(width: 36, height: 36)
+                                            .overlay(
+                                                Image(systemName: "mappin")
+                                                    .font(.title2)
+                                                    .foregroundColor(Constants.Design.secondaryColor)
+                                            )
+
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(city.description)
+                                                .font(.custom("Poppins-Medium", size: 16))
+                                                .foregroundColor(.black)
+                                            Text(city.region)
+                                                .font(.custom("Poppins-Regular", size: 14))
+                                                .foregroundColor(.gray)
+                                        }
+                                        Spacer()
+                                    }
+                                    .padding(.vertical, 8)
+                                }
                             }
                         }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
                 }
-            } else {
-                Spacer()
             }
+            .animation(.easeInOut, value: viewModel.isSearchQueryEmpty)
 
             Spacer()
         }
@@ -129,11 +131,5 @@ struct LocationView: View {
         .onAppear {
             viewModel.fetchCurrentLocation()
         }
-    }
-}
-
-#Preview {
-    LocationView { selectedLocation in
-        print("Selected Location: \(selectedLocation)")
     }
 }
