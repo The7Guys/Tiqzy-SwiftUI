@@ -1,4 +1,6 @@
-enum Category: String, Codable, CaseIterable {
+import Foundation
+
+enum Category: String, Codable, CaseIterable, Hashable {
     case museums = "Museums"
     case concerts = "Concerts"
     case exhibitions = "Exhibitions"
@@ -29,4 +31,8 @@ enum Category: String, Codable, CaseIterable {
     case travel = "Travel"
     case photography = "Photography"
     case spirituality = "Spirituality"
+    
+    var description: String {
+        self.rawValue
+    }
 }

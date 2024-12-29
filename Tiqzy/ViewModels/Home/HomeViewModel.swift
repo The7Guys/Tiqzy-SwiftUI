@@ -4,8 +4,24 @@ class HomeViewModel: ObservableObject {
     @Published var selectedLocation: String = "Current location"
     @Published var selectedDate: String = "Today, 15 Oct"
     @Published var notificationsCount: Int = 2
-    @Published var cities: [String] = ["Amsterdam", "Rotterdam", "Eindhoven", "Utrecht"]
-    @Published var categories: [String] = ["Museums", "Tours", "Events", "Activities"]
+    @Published var cities: [City] = [
+        .amsterdam,
+        .haarlem,
+        .rotterdam,
+        .theHague,
+        .breda,
+        .delft,
+        .eindhoven,
+        .leiden]
+    @Published var categories: [Category] = [
+        .museums,
+        .art,
+        .foodAndDrink,
+        .outdoor,
+        .historical,
+        .sports,
+        .festivals,
+        .networking]
 
     func performSearch() {
         // Logic for handling search (e.g., updating state, API call, etc.)

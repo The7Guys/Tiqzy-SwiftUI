@@ -6,7 +6,7 @@ struct LocationView: View {
     @StateObject private var viewModel = LocationViewModel()
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             // Header Section with Back Button and Search Bar
             HStack(spacing: 12) {
                 Button(action: {
@@ -18,7 +18,7 @@ struct LocationView: View {
                 }
 
                 TextField("Enter Destination", text: $viewModel.searchQuery)
-                    .padding()
+                    .padding(12)
                     .background(Color.gray.opacity(0.1))
                     .cornerRadius(8)
                     .overlay(
@@ -28,22 +28,30 @@ struct LocationView: View {
             }
             .padding(.horizontal)
 
-            VStack(spacing: 20) {
+            VStack(spacing: 12) {
                 // Option: Anywhere in Holland
                 Button(action: {
                     onLocationSelected("Anywhere in Holland")
                     dismiss()
                 }) {
                     HStack(spacing: 12) {
-                        Image(systemName: "globe")
-                            .foregroundColor(Constants.Design.secondaryColor)
-                            .font(.title3)
-                        Text("Anywhere in Holland")
-                            .font(.custom("Poppins-Regular", size: 16))
-                            .foregroundColor(Constants.Design.secondaryColor)
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Constants.Design.secondaryColor.opacity(0.1))
+                            .frame(width: 36, height: 36)
+                            .overlay(
+                                Image(systemName: "globe")
+                                    .font(.title2)
+                                    .foregroundColor(Constants.Design.secondaryColor)
+                            )
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Anywhere in Holland")
+                                .font(.custom("Poppins-SemiBold", size: 16))
+                                .foregroundColor(Constants.Design.secondaryColor)
+                        }
                         Spacer()
                     }
-                    .padding()
+                    .padding(.vertical, 8)
                 }
 
                 // Option: Current Location
@@ -52,12 +60,18 @@ struct LocationView: View {
                     dismiss()
                 }) {
                     HStack(spacing: 12) {
-                        Image(systemName: "location.fill")
-                            .foregroundColor(Constants.Design.secondaryColor)
-                            .font(.title3)
-                        VStack(alignment: .leading, spacing: 4) {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Constants.Design.secondaryColor.opacity(0.1))
+                            .frame(width: 36, height: 36)
+                            .overlay(
+                                Image(systemName: "mappin")
+                                    .font(.title2)
+                                    .foregroundColor(Constants.Design.secondaryColor)
+                            )
+
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("Current location")
-                                .font(.custom("Poppins-SemiBold", size: 16))
+                                .font(.custom("Poppins-Medium", size: 16))
                                 .foregroundColor(.black)
                             Text(viewModel.currentLocation)
                                 .font(.custom("Poppins-Regular", size: 14))
@@ -65,7 +79,7 @@ struct LocationView: View {
                         }
                         Spacer()
                     }
-                    .padding()
+                    .padding(.vertical, 8)
                 }
             }
             .padding(.horizontal)
@@ -73,22 +87,33 @@ struct LocationView: View {
             // Display Filtered Cities While Typing
             if !viewModel.filteredCities.isEmpty {
                 ScrollView {
-                    VStack(spacing: 16) {
+                    VStack(spacing: 12) {
                         ForEach(viewModel.filteredCities, id: \.self) { city in
                             Button(action: {
-                                onLocationSelected(city)
+                                onLocationSelected(city.description)
                                 dismiss()
                             }) {
-                                HStack {
-                                    Text(city)
-                                        .font(.custom("Poppins-Regular", size: 16))
-                                        .foregroundColor(Constants.Design.primaryColor)
+                                HStack(spacing: 12) {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Constants.Design.secondaryColor.opacity(0.1))
+                                        .frame(width: 36, height: 36)
+                                        .overlay(
+                                            Image(systemName: "mappin")
+                                                .font(.title2)
+                                                .foregroundColor(Constants.Design.secondaryColor)
+                                        )
+
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(city.description)
+                                            .font(.custom("Poppins-Medium", size: 16))
+                                            .foregroundColor(.black)
+                                        Text(city.region)
+                                            .font(.custom("Poppins-Regular", size: 14))
+                                            .foregroundColor(.gray)
+                                    }
                                     Spacer()
                                 }
-                                .padding()
-                                .background(Color.white)
-                                .cornerRadius(8)
-                                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+                                .padding(.vertical, 8)
                             }
                         }
                     }

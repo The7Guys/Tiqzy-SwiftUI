@@ -124,7 +124,7 @@ struct HomeView: View {
                                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                                             )
 
-                                        Text(city)
+                                        Text(city.description) // Use `description` for the city name
                                             .font(.custom("Poppins-SemiBold", size: 14))
                                             .foregroundColor(.white)
                                             .padding([.leading, .bottom], 8)
@@ -160,7 +160,7 @@ struct HomeView: View {
                                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                                             )
 
-                                        Text(category)
+                                        Text(category.description)
                                             .font(.custom("Poppins-SemiBold", size: 14))
                                             .foregroundColor(.white)
                                             .padding([.leading, .bottom], 8)
