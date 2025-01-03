@@ -90,10 +90,8 @@ struct DateView: View {
 
             // "Select Date" Button
             Button(action: {
-                if let selectedDate = viewModel.selectedDate {
-                    let formatter = DateFormatter()
-                    formatter.dateFormat = "dd MMM yyyy"
-                    onDateSelected(formatter.string(from: selectedDate))
+                if let formattedDate = viewModel.getFormattedSelectedDate() {
+                    onDateSelected(formattedDate)
                 }
                 dismiss()
             }) {

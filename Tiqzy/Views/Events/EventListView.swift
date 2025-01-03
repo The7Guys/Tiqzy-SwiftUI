@@ -1,13 +1,14 @@
 import SwiftUI
 
 struct EventListView: View {
-    @StateObject private var viewModel = EventListViewModel()
-    
+    @StateObject private var viewModel: EventListViewModel
+
     @State private var showLocationView = false
     @State private var showDateView = false
-    
-    @State var selectedLocation: String
-    @State var selectedDate: String
+
+    init(selectedLocation: String, selectedDate: String) {
+        _viewModel = StateObject(wrappedValue: EventListViewModel(selectedLocation: selectedLocation, selectedDate: selectedDate))
+    }
 
     let columns = [
         GridItem(.flexible())
@@ -18,38 +19,37 @@ struct EventListView: View {
             VStack(spacing: 16) {
                 // Header Section
                 HStack {
-                    
-                    HStack {
-                        Button(action: {
-                            showLocationView = true
-                        }) {
-                            Text(selectedLocation)
-                                .font(.custom("Poppins-SemiBold", size: 20))
-                                .foregroundColor(Constants.Design.primaryColor)
-                        }
-                        .sheet(isPresented: $showLocationView) {
-                            LocationView { newLocation in
-                                selectedLocation = newLocation
-                            }
-                        }
-
-                        Spacer()
-
-                        Button(action: {
-                            showDateView = true
-                        }) {
-                            Text(selectedDate)
-                                .font(.custom("Poppins-SemiBold", size: 20))
-                                .foregroundColor(Constants.Design.primaryColor)
-                        }
-                        .sheet(isPresented: $showDateView) {
-                            DateView { newDate in
-                                selectedDate = newDate
-                            }
+                    Button(action: {
+                        showLocationView = true
+                    }) {
+                        Text(viewModel.selectedLocation)
+                            .font(.custom("Poppins-SemiBold", size: 20))
+                            .foregroundColor(Constants.Design.primaryColor)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                    }
+                    .sheet(isPresented: $showLocationView) {
+                        LocationView { newLocation in
+                            viewModel.updateLocation(newLocation)
                         }
                     }
 
                     Spacer()
+
+                    Button(action: {
+                        showDateView = true
+                    }) {
+                        Text(viewModel.selectedDate)
+                            .font(.custom("Poppins-SemiBold", size: 20))
+                            .foregroundColor(Constants.Design.primaryColor)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                    }
+                    .sheet(isPresented: $showDateView) {
+                        DateView { newDate in
+                            viewModel.updateDate(newDate)
+                        }
+                    }
                 }
                 .padding()
 
@@ -105,10 +105,13 @@ struct EventListView: View {
                 }
             }
             .background(Color(.systemGroupedBackground).ignoresSafeArea())
+            .onAppear {
+                viewModel.fetchEvents()
+            }
         }
     }
 }
 
 #Preview {
-    EventListView(selectedLocation: "Amsterdam", selectedDate: "15 Oct - 19 Oct")
+    EventListView(selectedLocation: "Amsterdam", selectedDate: "2025-01-06")
 }

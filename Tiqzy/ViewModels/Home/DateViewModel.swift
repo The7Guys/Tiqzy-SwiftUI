@@ -6,9 +6,12 @@ class DateViewModel: ObservableObject {
     @Published var selectedDate: Date?
 
     private let calendar = Calendar.current
+    private let dateFormatter: DateFormatter
 
     init() {
         self.currentMonth = calendar.startOfDay(for: Date())
+        self.dateFormatter = DateFormatter()
+        self.dateFormatter.dateFormat = "yyyy-MM-dd" // Required format
     }
 
     // Generate days for the current month with padding for empty slots
@@ -57,5 +60,11 @@ class DateViewModel: ObservableObject {
     // Handle date selection logic
     func handleDateSelection(_ date: Date) {
         selectedDate = date
+    }
+
+    // Get the formatted selected date
+    func getFormattedSelectedDate() -> String? {
+        guard let selectedDate = selectedDate else { return nil }
+        return dateFormatter.string(from: selectedDate)
     }
 }
