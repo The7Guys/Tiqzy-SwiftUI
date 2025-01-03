@@ -5,6 +5,7 @@ struct EventListView: View {
 
     @State private var showLocationView = false
     @State private var showDateView = false
+    @State private var showSortOptions = false
 
     init(selectedLocation: String, selectedDate: String) {
         _viewModel = StateObject(wrappedValue: EventListViewModel(selectedLocation: selectedLocation, selectedDate: selectedDate))
@@ -56,7 +57,7 @@ struct EventListView: View {
                 // Sort & Filter Section
                 HStack {
                     Button(action: {
-                        // Sort action
+                        showSortOptions = true
                     }) {
                         HStack {
                             Image(systemName: "arrow.up.arrow.down")
@@ -67,11 +68,16 @@ struct EventListView: View {
                         .padding(.horizontal)
                         .padding(.vertical, 8)
                     }
+                    .sheet(isPresented: $showSortOptions) {
+                        SortOptionsView(selectedOption: $viewModel.sortOption) {
+                            viewModel.fetchEvents()
+                        }
+                    }
 
                     Spacer()
 
                     Button(action: {
-                        // Filter action
+                        // Filter action (optional future implementation)
                     }) {
                         HStack {
                             Image(systemName: "line.3.horizontal.decrease.circle")
@@ -110,8 +116,4 @@ struct EventListView: View {
             }
         }
     }
-}
-
-#Preview {
-    EventListView(selectedLocation: "Amsterdam", selectedDate: "2025-01-06")
 }

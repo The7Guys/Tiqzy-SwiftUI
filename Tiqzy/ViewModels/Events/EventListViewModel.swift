@@ -1,12 +1,12 @@
+import SwiftUI
 import Combine
-import Foundation
-
 class EventListViewModel: ObservableObject {
     @Published var events: [Event] = []          // List of all events
     @Published var isLoading = false             // Tracks loading state
     @Published var errorMessage: String?         // Tracks error messages
     @Published var selectedLocation: String
     @Published var selectedDate: String
+    @Published var sortOption: EventSortOption = .dateAscending
 
     private let repository: EventRepositoryProtocol
     private var cancellables = Set<AnyCancellable>()
@@ -19,15 +19,13 @@ class EventListViewModel: ObservableObject {
 
     // MARK: - Fetch Events
     func fetchEvents() {
-        guard !selectedLocation.isEmpty, !selectedDate.isEmpty else {
-            events = []
-            return
-        }
-
         isLoading = true
         errorMessage = nil
 
-        repository.fetchEvents(location: selectedLocation, date: selectedDate)
+        let locationFilter = selectedLocation == "Anywhere" ? "" : selectedLocation
+        let dateFilter = selectedDate == "Anytime" ? "" : selectedDate
+
+        repository.fetchEvents(location: locationFilter, date: dateFilter, sort: sortOption.apiValue)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }

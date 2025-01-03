@@ -34,7 +34,7 @@ struct LocationView: View {
                     // Options: Anywhere in Holland and Current Location
                     VStack(spacing: 12) {
                         Button(action: {
-                            onLocationSelected("Anywhere in Holland")
+                            onLocationSelected("Anywhere")
                             dismiss()
                         }) {
                             HStack(spacing: 12) {

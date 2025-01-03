@@ -2,7 +2,7 @@ import Foundation
 import Combine
 
 protocol EventRepositoryProtocol {
-    func fetchEvents(location: String, date: String) -> AnyPublisher<[Event], Error>
+    func fetchEvents(location: String, date: String, sort: String) -> AnyPublisher<[Event], Error>
     func fetchEvent(by id: Int) -> AnyPublisher<Event, Error>
 }
 
@@ -10,12 +10,21 @@ class EventRepository: EventRepositoryProtocol {
     private let apiService = APIService.shared
     private let baseURL = URL(string: "http://localhost:3000/api/v1/tickets")!
 
-    func fetchEvents(location: String, date: String) -> AnyPublisher<[Event], Error> {
+    func fetchEvents(location: String, date: String, sort: String) -> AnyPublisher<[Event], Error> {
         var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)!
-        components.queryItems = [
-            URLQueryItem(name: "venueCity", value: location),
-            URLQueryItem(name: "date", value: date)
-        ]
+
+        // Add query items only for non-empty filters
+        var queryItems: [URLQueryItem] = []
+        if !location.isEmpty {
+            queryItems.append(URLQueryItem(name: "venueCity", value: location))
+        }
+        if !date.isEmpty {
+            queryItems.append(URLQueryItem(name: "date", value: date))
+        }
+        if !sort.isEmpty {
+            queryItems.append(URLQueryItem(name: "sort", value: sort))
+        }
+        components.queryItems = queryItems
 
         guard let url = components.url else {
             return Fail(error: URLError(.badURL)).eraseToAnyPublisher()
