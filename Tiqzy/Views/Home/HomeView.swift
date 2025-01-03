@@ -4,6 +4,7 @@ struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
     @State private var showLocationView = false
     @State private var showDateView = false
+    @State private var navigateToEventListView = false
 
     var body: some View {
         NavigationStack {
@@ -85,8 +86,18 @@ struct HomeView: View {
                             }
                         }
 
+                        NavigationLink(
+                            destination: EventListView(
+                                selectedLocation: viewModel.selectedLocation,
+                                selectedDate: viewModel.selectedDate
+                            ),
+                            isActive: $navigateToEventListView
+                        ) {
+                            EmptyView()
+                        }
+
                         Button(action: {
-                            viewModel.performSearch()
+                            navigateToEventListView = true
                         }) {
                             Text("Search")
                                 .font(.custom("Poppins-SemiBold", size: 24))
@@ -179,5 +190,5 @@ struct HomeView: View {
 }
 
 #Preview {
-    ContentView()
+    HomeView()
 }

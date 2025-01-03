@@ -3,8 +3,7 @@ import Combine
 
 class DateViewModel: ObservableObject {
     @Published var currentMonth: Date
-    @Published var selectedStartDate: Date?
-    @Published var selectedEndDate: Date?
+    @Published var selectedDate: Date?
 
     private let calendar = Calendar.current
 
@@ -49,27 +48,14 @@ class DateViewModel: ObservableObject {
 
     // Check if a date is selected
     func isSelected(_ date: Date) -> Bool {
-        if let start = selectedStartDate, let end = selectedEndDate {
-            return date >= start && date <= end
-        } else if let start = selectedStartDate {
-            return calendar.isDate(date, inSameDayAs: start)
+        if let selected = selectedDate {
+            return calendar.isDate(date, inSameDayAs: selected)
         }
         return false
     }
 
     // Handle date selection logic
     func handleDateSelection(_ date: Date) {
-        if let start = selectedStartDate, let end = selectedEndDate {
-            selectedStartDate = date
-            selectedEndDate = nil
-        } else if let start = selectedStartDate {
-            if date < start {
-                selectedStartDate = date
-            } else {
-                selectedEndDate = date
-            }
-        } else {
-            selectedStartDate = date
-        }
+        selectedDate = date
     }
 }

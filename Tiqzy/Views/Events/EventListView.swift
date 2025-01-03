@@ -2,6 +2,12 @@ import SwiftUI
 
 struct EventListView: View {
     @StateObject private var viewModel = EventListViewModel()
+    
+    @State private var showLocationView = false
+    @State private var showDateView = false
+    
+    @State var selectedLocation: String
+    @State var selectedDate: String
 
     let columns = [
         GridItem(.flexible())
@@ -12,26 +18,35 @@ struct EventListView: View {
             VStack(spacing: 16) {
                 // Header Section
                 HStack {
-                    Button(action: {
-                        // Back action (handle navigation logic)
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .font(.title3)
-                            .foregroundColor(Constants.Design.primaryColor)
-                    }
-
-                    Spacer()
-
+                    
                     HStack {
-                        Text("Amsterdam")
-                            .font(.custom("Poppins-SemiBold", size: 20))
-                            .foregroundColor(Constants.Design.primaryColor)
-                        
+                        Button(action: {
+                            showLocationView = true
+                        }) {
+                            Text(selectedLocation)
+                                .font(.custom("Poppins-SemiBold", size: 20))
+                                .foregroundColor(Constants.Design.primaryColor)
+                        }
+                        .sheet(isPresented: $showLocationView) {
+                            LocationView { newLocation in
+                                selectedLocation = newLocation
+                            }
+                        }
+
                         Spacer()
 
-                        Text("15 Oct - 19 Oct")
-                            .font(.custom("Poppins-SemiBold", size: 20)) // Same font and size as "Amsterdam"
-                            .foregroundColor(Constants.Design.primaryColor)
+                        Button(action: {
+                            showDateView = true
+                        }) {
+                            Text(selectedDate)
+                                .font(.custom("Poppins-SemiBold", size: 20))
+                                .foregroundColor(Constants.Design.primaryColor)
+                        }
+                        .sheet(isPresented: $showDateView) {
+                            DateView { newDate in
+                                selectedDate = newDate
+                            }
+                        }
                     }
 
                     Spacer()
@@ -95,5 +110,5 @@ struct EventListView: View {
 }
 
 #Preview {
-    EventListView()
+    EventListView(selectedLocation: "Amsterdam", selectedDate: "15 Oct - 19 Oct")
 }

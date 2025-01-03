@@ -106,6 +106,4 @@ struct EventCard: View {
     }
 }
 
-#Preview {
-    EventListView()
-}
+//http://localhost:3000/api/v1/tickets?start_date=2025-01-06&venueCity=Beverwijk

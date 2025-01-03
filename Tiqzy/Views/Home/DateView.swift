@@ -4,7 +4,7 @@ struct DateView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = DateViewModel()
 
-    var onDateSelected: (String) -> Void // Callback to pass the selected date(s)
+    var onDateSelected: (String) -> Void // Callback to pass the selected date
 
     private var displayedMonth: String {
         let formatter = DateFormatter()
@@ -16,7 +16,7 @@ struct DateView: View {
         VStack(spacing: 16) {
             // Header
             HStack {
-                Text("Select Dates")
+                Text("Select a Date")
                     .font(.custom("Poppins-SemiBold", size: 18))
                     .foregroundColor(Constants.Design.primaryColor)
 
@@ -70,7 +70,7 @@ struct DateView: View {
                             if let date = date {
                                 Text("\(Calendar.current.component(.day, from: date))")
                                     .font(.custom("Poppins-Regular", size: 14))
-                                    .foregroundColor(viewModel.isToday(date) ? .red : Constants.Design.primaryColor)
+                                    .foregroundColor(viewModel.isSelected(date) ? .white : (viewModel.isToday(date) ? .red : Constants.Design.primaryColor))
                                     .frame(maxWidth: .infinity)
                                     .padding(8)
                                     .background(
@@ -88,22 +88,16 @@ struct DateView: View {
                 }
             }
 
-            // "Select Dates" Button
+            // "Select Date" Button
             Button(action: {
-                if let startDate = viewModel.selectedStartDate {
-                    if let endDate = viewModel.selectedEndDate {
-                        let formatter = DateFormatter()
-                        formatter.dateFormat = "dd MMM"
-                        onDateSelected("\(formatter.string(from: startDate)) - \(formatter.string(from: endDate))")
-                    } else {
-                        let formatter = DateFormatter()
-                        formatter.dateFormat = "dd MMM yyyy"
-                        onDateSelected(formatter.string(from: startDate))
-                    }
+                if let selectedDate = viewModel.selectedDate {
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "dd MMM yyyy"
+                    onDateSelected(formatter.string(from: selectedDate))
                 }
                 dismiss()
             }) {
-                Text("Select Dates")
+                Text("Select Date")
                     .font(.custom("Poppins-SemiBold", size: 18))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
