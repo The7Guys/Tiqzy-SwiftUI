@@ -24,7 +24,7 @@ struct LoginView: View {
                     .font(.custom("Poppins-Regular", size: 20))
                     .foregroundColor(Constants.Design.secondaryColor)
                 
-                TextField("e.g christianBale.com", text: $viewModel.email)
+                TextField("e.g christianBale@gmail.com", text: $viewModel.email)
                     .autocapitalization(.none)
                     .keyboardType(.emailAddress)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -42,6 +42,7 @@ struct LoginView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
             }
             .padding(.horizontal)
+            
             // Log In Button
             Button(action: {
                 viewModel.logIn()
@@ -66,58 +67,33 @@ struct LoginView: View {
                 }
             }
             .disabled(viewModel.isLoading)
-            
-            
-            // Divider
-            HStack {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.5))
-                    .frame(height: 1)
-                
-                Text("Or")
+
+            // Error Message
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
                     .font(.custom("Poppins-Regular", size: 14))
-                    .foregroundColor(.gray)
-                
-                Rectangle()
-                    .fill(Color.gray.opacity(0.5))
-                    .frame(height: 1)
+                    .foregroundColor(.red)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
             }
-            .padding(.horizontal)
-            .padding(.vertical, 10)
-            
-            // Apple and Google Login Buttons
-            VStack(spacing: 20) {
-                Button(action: {
-                    viewModel.logInWithApple()
-                }) {
-                    HStack {
-                        Image(systemName: "applelogo")
-                        Text("Log in with Apple")
-                            .font(.custom("Poppins-Regular", size: 16))
-                    }
-                    .foregroundColor(Constants.Design.primaryColor)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Constants.Design.primaryColor))
+
+            // Navigate on Successful Login
+            if viewModel.isLoggedIn {
+                Text("Login successful! Redirecting...")
+                    .font(.custom("Poppins-Medium", size: 16))
+                    .foregroundColor(.green)
+                    .padding(.top)
+                // Simulate navigation
+                Spacer()
+                Button("Continue to Home") {
+                    // Navigate to home or dismiss the login screen
                 }
-                
-                Button(action: {
-                    viewModel.logInWithGoogle()
-                }) {
-                    HStack {
-                        Image("googleIcon") // Replace with Google logo
-                        Text("Log in with Google")
-                            .font(.custom("Poppins-Regular", size: 16))
-                    }
-                    .foregroundColor(Constants.Design.primaryColor)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Constants.Design.primaryColor))
-                }
+                .font(.custom("Poppins-Medium", size: 18))
+                .foregroundColor(Constants.Design.secondaryColor)
             }
-            .padding(.horizontal)
             
             Spacer()
+            
             // Sign Up Text
             HStack {
                 Text("Don’t have an account?")
@@ -135,8 +111,4 @@ struct LoginView: View {
         }
         .padding()
     }
-}
-
-#Preview {
-    LoginView()
 }

@@ -1,17 +1,19 @@
+import Foundation
+
 struct User: Decodable {
     let id: Int
     let name: String
     let email: String
 }
 
-struct LoginRequest: Encodable {
+struct LoginRequest: Codable {
     let email: String
     let password: String
 }
 
 struct LoginResponse: Decodable {
     let token: String
-    let user: User // Update this structure based on your API's response
+    let user: User
 }
 
 struct RegisterRequest: Codable {
@@ -21,5 +23,7 @@ struct RegisterRequest: Codable {
 }
 
 struct RegisterResponse: Codable {
+    let success: Bool
     let message: String
+    let token: String
 }

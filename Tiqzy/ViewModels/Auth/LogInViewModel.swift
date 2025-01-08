@@ -6,6 +6,7 @@ class LoginViewModel: ObservableObject {
     @Published var password: String = ""
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    @Published var isLoggedIn: Bool = false // Indicates if login is successful
 
     private var cancellables = Set<AnyCancellable>()
     private let apiService = APIService.shared
@@ -13,6 +14,7 @@ class LoginViewModel: ObservableObject {
     func logIn() {
         guard validateInput() else { return }
         isLoading = true
+        errorMessage = nil
 
         let loginRequest = LoginRequest(email: email, password: password)
         apiService.login(request: loginRequest)
@@ -22,9 +24,12 @@ class LoginViewModel: ObservableObject {
                 if case .failure(let error) = completion {
                     self?.errorMessage = error.localizedDescription
                 }
-            }, receiveValue: { response in
-                // Handle successful login (e.g., save token, navigate)
-                print("Logged in:", response.token)
+            }, receiveValue: { [weak self] response in
+                guard let self = self else { return }
+                // Save token using TokenManager
+                TokenManager.shared.saveToken(response.token)
+                self.isLoggedIn = true // Indicate login success
+                print("Logged in successfully. Token:", response.token)
             })
             .store(in: &cancellables)
     }
@@ -42,10 +47,10 @@ class LoginViewModel: ObservableObject {
     }
 
     func logInWithApple() {
-        // Handle Apple Login
+        // Handle Apple Login (future implementation)
     }
 
     func logInWithGoogle() {
-        // Handle Google Login
+        // Handle Google Login (future implementation)
     }
 }

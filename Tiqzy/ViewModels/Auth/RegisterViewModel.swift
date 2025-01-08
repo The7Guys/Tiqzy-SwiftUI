@@ -1,5 +1,5 @@
 import Combine
-import SwiftUI
+import Foundation
 
 class RegisterViewModel: ObservableObject {
     @Published var name: String = ""
@@ -31,13 +31,21 @@ class RegisterViewModel: ObservableObject {
                 
                 switch completion {
                 case .finished:
-                    self.isRegistrationSuccessful = true
+                    break
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
                 }
             }, receiveValue: { [weak self] response in
+                guard let self = self else { return }
                 print("Registration successful: \(response)")
-                self?.isRegistrationSuccessful = true
+                
+                // Save token if registration is successful
+                if response.success {
+                    TokenManager.shared.saveToken(response.token)
+                    self.isRegistrationSuccessful = true
+                } else {
+                    self.errorMessage = response.message
+                }
             })
             .store(in: &cancellables)
     }

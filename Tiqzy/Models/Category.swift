@@ -10,8 +10,6 @@ enum Category: String, Codable, CaseIterable, Hashable {
     case festivals = "Festivals"
     case conferences = "Conferences"
     case networking = "Networking"
-    case webinars = "Webinars"
-    case meetups = "Meetups"
     case comedy = "Comedy"
     case magicShows = "Magic Shows"
     case outdoor = "Outdoor Activities"
@@ -20,7 +18,6 @@ enum Category: String, Codable, CaseIterable, Hashable {
     case fairs = "Fairs"
     case gaming = "Gaming"
     case technology = "Technology"
-    case healthAndWellness = "Health & Wellness"
     case art = "Art"
     case dance = "Dance"
     case literature = "Literature"
@@ -28,10 +25,6 @@ enum Category: String, Codable, CaseIterable, Hashable {
     case children = "Children's Events"
     case historical = "Historical"
     case film = "Film & Movies"
-    case travel = "Travel"
-    case photography = "Photography"
-    case spirituality = "Spirituality"
-    
     var description: String {
         self.rawValue
     }

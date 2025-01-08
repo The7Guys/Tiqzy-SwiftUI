@@ -17,12 +17,12 @@ struct ContentView: View {
                     Label("Tickets", systemImage: "ticket")
                 }
 
-            FavoritesView()
+            RegisterView()
                 .tabItem {
                     Label("Favorites", systemImage: "heart.fill")
                 }
 
-            ProfileView()
+            LoginView()
                 .tabItem {
                     Label("Profile", systemImage: "person.crop.circle")
                 }
