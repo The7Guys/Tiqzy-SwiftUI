@@ -2,19 +2,34 @@ import SwiftUI
 
 @main
 struct TiqzyApp: App {
-    @State private var showSplashScreen = true // Single state variable
-    @State private var preloadContentView = false // Preload ContentView in the background
+    @State private var showSplashScreen = true
+    @State private var preloadContentView = false
+    @State private var showOnboarding = false
+
+    init() {
+        // Determine if onboarding needs to be shown
+        let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
+        _showOnboarding = State(initialValue: !hasSeenOnboarding)
+    }
 
     var body: some Scene {
         WindowGroup {
             ZStack {
                 // Main Content View (preloaded in the background)
                 ContentView()
-                    .opacity(preloadContentView && !showSplashScreen ? 1 : 0) // Fully visible after splash
+                    .opacity(preloadContentView && !showSplashScreen && !showOnboarding ? 1 : 0)
                     .onAppear {
-                        // Preload ContentView in the background
-                        preloadContentView = true
+                        preloadContentView = true // Preload ContentView in the background
                     }
+
+                // Onboarding View
+                if showOnboarding && !showSplashScreen {
+                    OnboardingView()
+                        .transition(.move(edge: .trailing)) // Smooth transition for onboarding
+                        .onDisappear {
+                            UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
+                        }
+                }
 
                 // Splash Screen View
                 if showSplashScreen {

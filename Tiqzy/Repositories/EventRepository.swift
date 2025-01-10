@@ -8,7 +8,7 @@ protocol EventRepositoryProtocol {
 
 class EventRepository: EventRepositoryProtocol {
     private let apiService = APIService.shared
-    private let baseURL = URL(string: "https://api-echo-dev.apps.inholland.hcs-lab.nl/tickets/tickets")!
+    private let baseURL = URL(string: "https://api.tiqzyapi.nl/tickets/tickets")!
 
     func fetchEvents(location: String, date: String, sort: String) -> AnyPublisher<[Event], Error> {
         var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)!

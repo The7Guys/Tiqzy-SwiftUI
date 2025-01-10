@@ -22,7 +22,7 @@ struct ContentView: View {
                     Label("Favorites", systemImage: "heart.fill")
                 }
 
-            LoginView()
+            PreferencesView()
                 .tabItem {
                     Label("Profile", systemImage: "person.crop.circle")
                 }

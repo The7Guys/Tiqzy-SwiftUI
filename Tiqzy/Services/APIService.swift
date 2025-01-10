@@ -2,7 +2,7 @@ import Foundation
 import Combine
 
 class APIService {
-    private let baseURL = "https://api-echo-dev.apps.inholland.hcs-lab.nl"
+    private let baseURL = "https://api.tiqzyapi.nl/auth"
     static let shared = APIService() // Singleton instance
     private init() {}
 
