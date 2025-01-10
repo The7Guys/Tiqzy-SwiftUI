@@ -2,9 +2,12 @@ import SwiftUI
 
 struct PreferencesView: View {
     @StateObject private var viewModel = PreferencesViewModel()
-    @Environment(\.dismiss) private var dismiss // In case you want to use navigation
+    @Environment(\.dismiss) private var dismiss
 
-    let categories: [Category] = Category.allCases // Assuming `Category` conforms to `CaseIterable`
+    let onComplete: () -> Void // Callback to signal completion
+    var showBottomButtons: Bool = true // Controls visibility of bottom buttons
+
+    let categories: [Category] = Category.allCases
 
     var body: some View {
         VStack(spacing: 20) {
@@ -17,7 +20,6 @@ struct PreferencesView: View {
 
             // Categories Grid
             ScrollView {
-                // Dynamic Flow Layout
                 FlowLayout(categories) { category in
                     Button(action: {
                         viewModel.toggleCategory(category)
@@ -41,51 +43,44 @@ struct PreferencesView: View {
             Spacer()
 
             // Bottom Buttons
-            HStack(spacing: 20) {
-                // Skip Button
-                Button(action: {
-                    navigateToContentView()
-                }) {
-                    Text("Skip")
-                        .font(.custom("Poppins-Medium", size: 18))
-                        .foregroundColor(Constants.Design.primaryColor)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Constants.Design.primaryColor, lineWidth: 1)
-                        )
-                }
+            if showBottomButtons {
+                HStack(spacing: 20) {
+                    // Skip Button
+                    Button(action: {
+                        onComplete()
+                    }) {
+                        Text("Skip")
+                            .font(.custom("Poppins-Medium", size: 18))
+                            .foregroundColor(Constants.Design.primaryColor)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Constants.Design.primaryColor, lineWidth: 1)
+                            )
+                    }
 
-                // Let’s Go! Button
-                Button(action: {
-                    savePreferencesAndNavigate()
-                }) {
-                    Text("Let’s Go!")
-                        .font(.custom("Poppins-Medium", size: 18))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Constants.Design.primaryColor)
-                        .cornerRadius(12)
+                    // Let’s Go! Button
+                    Button(action: {
+                        savePreferencesAndNavigate()
+                    }) {
+                        Text("Let’s Go!")
+                            .font(.custom("Poppins-Medium", size: 18))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Constants.Design.primaryColor)
+                            .cornerRadius(12)
+                    }
                 }
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
         }
         .padding(.bottom, 20)
     }
 
-    // Navigate to ContentView
-    private func navigateToContentView() {
-            }
-
-    // Save preferences and navigate
     private func savePreferencesAndNavigate() {
         print("Selected Categories: \(viewModel.selectedCategories)")
-        navigateToContentView()
+        onComplete()
     }
-}
-
-#Preview {
-    PreferencesView()
 }

@@ -2,12 +2,13 @@ import SwiftUI
 
 struct OnboardingView: View {
     @StateObject private var viewModel = OnboardingViewModel()
-    @State private var showContentView = false // Controls transition to ContentView
+    @State private var showPreferencesView = false // Tracks transition to PreferencesView
+    @State private var showContentView = false // Tracks transition to ContentView
 
     var body: some View {
         ZStack {
             // Onboarding Slides
-            if !showContentView {
+            if !showPreferencesView && !showContentView {
                 VStack(spacing: 20) {
                     TabView(selection: $viewModel.currentPage) {
                         ForEach(0..<viewModel.slides.count, id: \.self) { index in
@@ -42,7 +43,7 @@ struct OnboardingView: View {
                         viewModel.nextPage()
                         if viewModel.isOnboardingComplete {
                             withAnimation(.easeInOut(duration: 1.0)) {
-                                completeOnboarding()
+                                showPreferencesView = true
                             }
                         }
                     }) {
@@ -65,10 +66,20 @@ struct OnboardingView: View {
                     }
                     .padding(.bottom, 16)
                 }
-                .transition(.opacity) // Smooth fade transition
+                .transition(.opacity)
             }
 
-            // ContentView with fade-in effect
+            // Preferences View
+            if showPreferencesView && !showContentView {
+                PreferencesView(onComplete: {
+                    withAnimation(.easeInOut(duration: 1.0)) {
+                        completeOnboarding()
+                    }
+                })
+                .transition(.opacity)
+            }
+
+            // ContentView
             if showContentView {
                 ContentView()
                     .transition(.opacity)

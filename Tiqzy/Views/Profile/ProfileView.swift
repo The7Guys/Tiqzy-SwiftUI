@@ -74,7 +74,10 @@ struct ProfileView: View {
         case .payment:
             PaymentView()
         case .settings:
-            SettingsView()
+            PreferencesView(
+                onComplete: { print("Preferences completed")
+                },
+                showBottomButtons: false)
         case .help:
             HelpView()
         }

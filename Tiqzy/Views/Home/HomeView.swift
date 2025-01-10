@@ -51,7 +51,7 @@ struct HomeView: View {
 
                                 Text(viewModel.selectedLocation)
                                     .font(.custom("Poppins-Regular", size: 16))
-                                    .foregroundColor(.gray)
+                                    .foregroundColor(Constants.Design.primaryColor)
 
                                 Spacer()
                             }
@@ -73,7 +73,7 @@ struct HomeView: View {
 
                                 Text(viewModel.selectedDate.isEmpty ? "Select date" : viewModel.selectedDate)
                                     .font(.custom("Poppins-Regular", size: 16))
-                                    .foregroundColor(.gray)
+                                    .foregroundColor(Constants.Design.primaryColor)
 
                                 Spacer()
                             }
@@ -121,7 +121,7 @@ struct HomeView: View {
                             HStack(spacing: 16) {
                                 ForEach(viewModel.cities, id: \.self) { city in
                                     ZStack(alignment: .bottomLeading) {
-                                        Image("EventImage") // Placeholder image
+                                        Image(city.description) // Placeholder image
                                             .resizable()
                                             .scaledToFill()
                                             .frame(width: 150, height: 150)
@@ -157,7 +157,7 @@ struct HomeView: View {
                             HStack(spacing: 16) {
                                 ForEach(viewModel.categories, id: \.self) { category in
                                     ZStack(alignment: .bottomLeading) {
-                                        Image("EventImage") // Placeholder image
+                                        Image(category.description) // Placeholder image
                                             .resizable()
                                             .scaledToFill()
                                             .frame(width: 150, height: 150)
@@ -181,14 +181,22 @@ struct HomeView: View {
                             .padding(.horizontal)
                         }
                     }
+
+                    // Reset Onboarding Button
+                    Button(action: {
+                        UserDefaults.standard.set(false, forKey: "hasSeenOnboarding")
+                    }) {
+                        Text("Reset Onboarding")
+                            .font(.custom("Poppins-Regular", size: 16))
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Constants.Design.secondaryColor)
+                            .cornerRadius(12)
+                    }
                 }
                 .padding(.vertical)
             }
-            .background(Color(.systemGroupedBackground))
+            .background(Color(.white))
         }
     }
-}
-
-#Preview {
-    HomeView()
 }
