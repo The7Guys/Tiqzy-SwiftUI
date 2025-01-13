@@ -154,38 +154,46 @@ struct HomeView: View {
                     }
 
                     // Explore Categories Section
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Explore Categories")
-                            .font(.custom("Poppins-SemiBold", size: 18))
-                            .foregroundColor(Constants.Design.primaryColor)
-                            .padding(.horizontal)
+                                        VStack(alignment: .leading, spacing: 12) {
+                                            Text("Explore Categories")
+                                                .font(.custom("Poppins-SemiBold", size: 18))
+                                                .foregroundColor(Constants.Design.primaryColor)
+                                                .padding(.horizontal)
 
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                ForEach(viewModel.categories, id: \.self) { category in
-                                    ZStack(alignment: .bottomLeading) {
-                                        Image(category.description) // Placeholder image
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 150, height: 150)
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                                            .overlay(
-                                                LinearGradient(
-                                                    colors: [Color.black.opacity(0.6), Color.clear],
-                                                    startPoint: .bottom,
-                                                    endPoint: .center
-                                                )
-                                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                            )
+                                            ScrollView(.horizontal, showsIndicators: false) {
+                                                HStack(spacing: 16) {
+                                                    ForEach(viewModel.categories, id: \.self) { category in
+                                                        NavigationLink(
+                                                            destination: EventListView(
+                                                                selectedLocation: "Anywhere",
+                                                                selectedDate: "Anytime",
+                                                                selectedCategories: [category] // Pass the selected category
+                                                            )
+                                                        ) {
+                                                            ZStack(alignment: .bottomLeading) {
+                                                                Image(category.description) // Placeholder image
+                                                                    .resizable()
+                                                                    .scaledToFill()
+                                                                    .frame(width: 150, height: 150)
+                                                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                                                    .overlay(
+                                                                        LinearGradient(
+                                                                            colors: [Color.black.opacity(0.6), Color.clear],
+                                                                            startPoint: .bottom,
+                                                                            endPoint: .center
+                                                                        )
+                                                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                                                    )
 
-                                        Text(category.description)
-                                            .font(.custom("Poppins-SemiBold", size: 14))
-                                            .foregroundColor(.white)
-                                            .padding([.leading, .bottom], 8)
-                                    }
-                                }
-                            }
-                            .padding(.horizontal)
+                                                                Text(category.description)
+                                                                    .font(.custom("Poppins-SemiBold", size: 14))
+                                                                    .foregroundColor(.white)
+                                                                    .padding([.leading, .bottom], 8)
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                .padding(.horizontal)
                         }
                     }
 

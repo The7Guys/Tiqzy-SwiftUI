@@ -8,8 +8,14 @@ struct EventListView: View {
     @State private var showSortOptions = false
     @State private var showFilterView = false // State for FilterView
 
-    init(selectedLocation: String, selectedDate: String) {
-        _viewModel = StateObject(wrappedValue: EventListViewModel(selectedLocation: selectedLocation, selectedDate: selectedDate))
+    // Updated initializer to accept selectedCategories
+    init(selectedLocation: String, selectedDate: String, selectedCategories: Set<Category> = []) {
+        let viewModel = EventListViewModel(
+            selectedLocation: selectedLocation,
+            selectedDate: selectedDate
+        )
+        viewModel.updateCategories(selectedCategories) // Apply categories during view model setup
+        _viewModel = StateObject(wrappedValue: viewModel) // Assign the initialized view model
     }
 
     let columns = [
@@ -28,7 +34,10 @@ struct EventListView: View {
             }
             .background(Color(.systemGroupedBackground).ignoresSafeArea())
             .onAppear {
-                viewModel.fetchEvents()
+                // Ensure fetchEvents is called if it hasn't been
+                if viewModel.events.isEmpty {
+                    viewModel.fetchEvents()
+                }
             }
         }
     }
@@ -101,13 +110,15 @@ struct EventListView: View {
             .sheet(isPresented: $showFilterView) {
                 FilterView(
                     selectedCategories: $viewModel.selectedCategories,
-                    categories: Category.allCases,
-                    applyFilterAction: viewModel.updateCategories // Pass the update function
-                )
+                    categories: Category.allCases
+                ) {_ in 
+                    viewModel.fetchEvents() // Refresh events after filter is applied
+                }
             }
         }
         .padding(.horizontal)
     }
+
     // MARK: - Event Count Section
     private var eventCountSection: some View {
         Text("\(viewModel.events.count) Activities")
