@@ -4,7 +4,8 @@ import SwiftData
 struct TicketsView: View {
     @Query private var tickets: [Ticket] // Fetch tickets
     @State private var selectedTicket: Ticket? // To store the selected ticket for the popup
-
+    @ObservedObject private var appState = AppState.shared
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -37,6 +38,10 @@ struct TicketsView: View {
                 }
             }
         }
+        .onAppear {
+                    // Reset the badge count when the user views this tab
+                    appState.newTicketCount = 0
+                }
         .background(Color(.systemGroupedBackground).ignoresSafeArea())
         .overlay(
             // Show the QR code popup when a ticket is selected

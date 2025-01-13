@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    @ObservedObject private var appState = AppState.shared // Observe AppState
     init() {
         Constants.Design.applyCustomTabBarStyling()
     }
@@ -16,7 +17,7 @@ struct ContentView: View {
                 .tabItem {
                     Label("Tickets", systemImage: "ticket")
                 }
-
+                .badge(appState.newTicketCount)
             FavoritesView()
                 .tabItem {
                     Label("Favorites", systemImage: "heart.fill")

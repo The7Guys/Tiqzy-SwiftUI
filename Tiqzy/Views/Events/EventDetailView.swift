@@ -203,10 +203,12 @@ struct EventDetailView: View {
         modelContext.insert(ticket)
         try? modelContext.save()
 
+        // Increment the new ticket count
+        AppState.shared.newTicketCount += 1
+
         // Confirmation message
         print("Ticket saved: \(ticket.name)")
-    }
-}
+    }}
 
 struct ShareSheet: UIViewControllerRepresentable {
     let activityItems: [Any]
