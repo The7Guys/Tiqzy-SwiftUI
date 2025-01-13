@@ -2,7 +2,6 @@ import SwiftUI
 
 struct RegisterView: View {
     @StateObject private var viewModel = RegisterViewModel()
-    
     @Environment(\.presentationMode) var presentationMode // For dismissing the current view
 
     var body: some View {
@@ -82,17 +81,21 @@ struct RegisterView: View {
             
             Spacer()
             
-            // Navigate to Home Screen on Successful Registration
-            if viewModel.isRegistrationSuccessful {
-                Button("Continue") {
-                    // Dismiss the current view
-                    presentationMode.wrappedValue.dismiss()
+            // Navigate to Login Screen
+            HStack {
+                Text("Already have an account?")
+                    .font(.custom("Poppins-Regular", size: 14))
+                    .foregroundColor(.gray)
+                
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss() // Navigate back to LoginView
+                }) {
+                    Text("Log In")
+                        .font(.custom("Poppins-Regular", size: 14))
+                        .foregroundColor(Constants.Design.secondaryColor)
                 }
-                .font(.custom("Poppins-Medium", size: 18))
-                .foregroundColor(Constants.Design.secondaryColor)
-                .padding()
             }
-            
+
             // Error Message
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)

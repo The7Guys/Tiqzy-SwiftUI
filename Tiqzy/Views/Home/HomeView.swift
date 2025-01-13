@@ -120,25 +120,32 @@ struct HomeView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 16) {
                                 ForEach(viewModel.cities, id: \.self) { city in
-                                    ZStack(alignment: .bottomLeading) {
-                                        Image(city.description) // Placeholder image
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 150, height: 150)
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                                            .overlay(
-                                                LinearGradient(
-                                                    colors: [Color.black.opacity(0.6), Color.clear],
-                                                    startPoint: .bottom,
-                                                    endPoint: .center
-                                                )
+                                    NavigationLink(
+                                        destination: EventListView(
+                                            selectedLocation: city.description, // Pass city description to EventListView
+                                            selectedDate:"Anytime" // Keep the current date filter
+                                        )
+                                    ) {
+                                        ZStack(alignment: .bottomLeading) {
+                                            Image(city.description) // Placeholder image
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: 150, height: 150)
                                                 .clipShape(RoundedRectangle(cornerRadius: 8))
-                                            )
+                                                .overlay(
+                                                    LinearGradient(
+                                                        colors: [Color.black.opacity(0.6), Color.clear],
+                                                        startPoint: .bottom,
+                                                        endPoint: .center
+                                                    )
+                                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                                )
 
-                                        Text(city.description) // Use `description` for the city name
-                                            .font(.custom("Poppins-SemiBold", size: 14))
-                                            .foregroundColor(.white)
-                                            .padding([.leading, .bottom], 8)
+                                            Text(city.description) // Use `description` for the city name
+                                                .font(.custom("Poppins-SemiBold", size: 14))
+                                                .foregroundColor(.white)
+                                                .padding([.leading, .bottom], 8)
+                                        }
                                     }
                                 }
                             }

@@ -7,11 +7,12 @@ struct Event: Identifiable, Codable {
     let startDate: String
     let endDate: String
     let venueAddress: String?
-    let location: String? // Added city
+    let location: String?
     let duration: Int
     let imageURL: String?
     let price: Double?
     let stock: Int
+    let category: String? // New property for category
 
     private enum CodingKeys: String, CodingKey {
         case id, title, description, stock, price, duration_minutes
@@ -19,11 +20,12 @@ struct Event: Identifiable, Codable {
         case endDate = "end_date"
         case venue
         case image
+        case category // Category key in the JSON
     }
 
     private enum VenueCodingKeys: String, CodingKey {
         case address
-        case city // Added city key
+        case city
     }
 
     private enum ImageCodingKeys: String, CodingKey {
@@ -43,6 +45,7 @@ struct Event: Identifiable, Codable {
         stock = try container.decode(Int.self, forKey: .stock)
         price = try container.decodeIfPresent(Double.self, forKey: .price)
         duration = try container.decode(Int.self, forKey: .duration_minutes)
+        category = try container.decodeIfPresent(String.self, forKey: .category) // Decode the category
 
         // Decode nested venue fields
         if let venueContainer = try? container.nestedContainer(keyedBy: VenueCodingKeys.self, forKey: .venue) {
@@ -73,6 +76,7 @@ struct Event: Identifiable, Codable {
         try container.encode(stock, forKey: .stock)
         try container.encode(duration, forKey: .duration_minutes)
         try container.encodeIfPresent(price, forKey: .price)
+        try container.encodeIfPresent(category, forKey: .category) // Encode the category
 
         // Encode nested venue fields
         var venueContainer = container.nestedContainer(keyedBy: VenueCodingKeys.self, forKey: .venue)

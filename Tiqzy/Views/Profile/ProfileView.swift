@@ -13,9 +13,11 @@ struct ProfileView: View {
                         .frame(width: 60, height: 60)
                         .foregroundColor(Constants.Design.primaryColor)
 
-                    Text("Christian")
-                        .font(.custom("Poppins-SemiBold", size: 34))
-                        .foregroundColor(Constants.Design.primaryColor)
+                    NavigationLink(destination: LoginView()) {
+                        Text("Log In")
+                            .font(.custom("Poppins-SemiBold", size: 34))
+                            .foregroundColor(Constants.Design.primaryColor)
+                    }
 
                     Spacer()
                 }

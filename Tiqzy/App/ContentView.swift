@@ -17,7 +17,7 @@ struct ContentView: View {
                     Label("Tickets", systemImage: "ticket")
                 }
 
-            RegisterView()
+            FavoritesView()
                 .tabItem {
                     Label("Favorites", systemImage: "heart.fill")
                 }
