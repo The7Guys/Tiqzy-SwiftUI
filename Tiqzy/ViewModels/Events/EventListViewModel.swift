@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+
 class EventListViewModel: ObservableObject {
     @Published var events: [Event] = []          // List of all events
     @Published var isLoading = false             // Tracks loading state
@@ -7,6 +8,7 @@ class EventListViewModel: ObservableObject {
     @Published var selectedLocation: String
     @Published var selectedDate: String
     @Published var sortOption: EventSortOption = .dateAscending
+    @Published var selectedCategories: Set<Category> = [] // Use Set<Category>
 
     private let repository: EventRepositoryProtocol
     private var cancellables = Set<AnyCancellable>()
@@ -24,8 +26,9 @@ class EventListViewModel: ObservableObject {
 
         let locationFilter = selectedLocation == "Anywhere" ? "" : selectedLocation
         let dateFilter = selectedDate == "Anytime" ? "" : selectedDate
+        let categoriesFilter = selectedCategories.map { $0.rawValue }.joined(separator: ",")
 
-        repository.fetchEvents(location: locationFilter, date: dateFilter, sort: sortOption.apiValue)
+        repository.fetchEvents(location: locationFilter, date: dateFilter, sort: sortOption.apiValue, categories: categoriesFilter)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
@@ -50,6 +53,11 @@ class EventListViewModel: ObservableObject {
 
     func updateDate(_ date: String) {
         selectedDate = date
+        fetchEvents()
+    }
+
+    func updateCategories(_ categories: Set<Category>) {
+        selectedCategories = categories
         fetchEvents()
     }
 }

@@ -5,6 +5,7 @@ struct FilterView: View {
     @Environment(\.dismiss) private var dismiss
 
     let categories: [Category]
+    var applyFilterAction: ((Set<Category>) -> Void) // Callback to apply filters
 
     var body: some View {
         NavigationStack {
@@ -42,9 +43,7 @@ struct FilterView: View {
 
                 Spacer()
 
-                Button(action: {
-                    dismiss()
-                }) {
+                Button(action: applyFilters) {
                     Text("Apply Filters")
                         .font(.custom("Poppins-Medium", size: 18))
                         .foregroundColor(.white)
@@ -67,5 +66,10 @@ struct FilterView: View {
         } else {
             selectedCategories.insert(category)
         }
+    }
+
+    private func applyFilters() {
+        applyFilterAction(selectedCategories) // Pass selected categories back to the view model
+        dismiss()
     }
 }
