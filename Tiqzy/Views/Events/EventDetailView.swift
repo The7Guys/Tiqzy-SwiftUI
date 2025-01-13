@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 struct EventDetailView: View {
     @StateObject private var viewModel: EventDetailViewModel
@@ -6,6 +7,7 @@ struct EventDetailView: View {
     @State private var showMapDialog = false // State for showing the dialog
     @Environment(\.dismiss) private var dismiss // Environment dismiss action
     @State private var showShareSheet = false // State for triggering share sheet
+    @Environment(\.modelContext) private var modelContext // Access Swift Data context
 
     init(eventID: Int) {
         self.eventID = eventID
@@ -138,11 +140,9 @@ struct EventDetailView: View {
                 }
                 .padding(.horizontal)
 
-                // Check Availability Button
-                Button(action: {
-                    // Add functionality for availability check
-                }) {
-                    Text("Check availability")
+                // Buy Ticket Button
+                Button(action: saveTicket) {
+                    Text("Buy Ticket")
                         .font(.custom("Poppins-Medium", size: 24)) // Larger font size
                         .frame(maxWidth: .infinity)
                         .padding(10)
@@ -151,7 +151,7 @@ struct EventDetailView: View {
                         .cornerRadius(12)
                 }
                 .padding(.horizontal)
-                //Spacer()
+
                 // Event Description
                 VStack(alignment: .leading, spacing: 8) {
                     Text(viewModel.event?.description ?? "Loading description...")
@@ -184,6 +184,27 @@ struct EventDetailView: View {
             viewModel.loadEventDetails()
         }
         .navigationBarHidden(true)
+    }
+
+    private func saveTicket() {
+        guard let event = viewModel.event else { return }
+
+        let ticket = Ticket(
+            id: UUID().uuidString,
+            name: event.title,
+            imageUrl: event.imageURL ?? "",
+            location: event.location ?? "",
+            date: event.startDate, // Ensure the event has a valid `Date`
+            duration: event.duration,
+            price: event.price ?? 0.0
+        )
+
+        // Save ticket using Swift Data
+        modelContext.insert(ticket)
+        try? modelContext.save()
+
+        // Confirmation message
+        print("Ticket saved: \(ticket.name)")
     }
 }
 

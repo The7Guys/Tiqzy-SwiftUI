@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct TiqzyApp: App {
@@ -46,5 +47,7 @@ struct TiqzyApp: App {
             }
             .animation(.easeInOut(duration: 1.0), value: showSplashScreen) // Smooth animation
         }
+        .modelContainer(for: [Ticket.self])
     }
+    
 }
