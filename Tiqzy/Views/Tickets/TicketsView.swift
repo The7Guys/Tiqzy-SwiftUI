@@ -3,6 +3,7 @@ import SwiftData
 
 struct TicketsView: View {
     @Query private var tickets: [Ticket] // Fetch tickets
+    @State private var selectedTicket: Ticket? // To store the selected ticket for the popup
 
     var body: some View {
         ScrollView {
@@ -27,7 +28,9 @@ struct TicketsView: View {
                                 .padding(.horizontal)
 
                             ForEach(ticketsForDate) { ticket in
-                                ModernTicketCard(ticket: ticket)
+                                ModernTicketCard(ticket: ticket) {
+                                    selectedTicket = ticket // Set the selected ticket for the popup
+                                }
                             }
                         }
                     }
@@ -35,6 +38,16 @@ struct TicketsView: View {
             }
         }
         .background(Color(.systemGroupedBackground).ignoresSafeArea())
+        .overlay(
+            // Show the QR code popup when a ticket is selected
+            Group {
+                if let ticket = selectedTicket {
+                    QRCodePopup(ticket: ticket) {
+                        selectedTicket = nil // Dismiss the popup
+                    }
+                }
+            }
+        )
     }
 
     // Group tickets by string-based date
@@ -46,16 +59,19 @@ struct TicketsView: View {
 
 struct ModernTicketCard: View {
     let ticket: Ticket
+    let qrCodeTapped: () -> Void // Callback for when the QR code is tapped
 
     var body: some View {
         HStack(spacing: 16) {
-            // QR Code Section (Placeholder for QR Code)
-            Image(systemName: "qrcode")
+            // QR Code Section
+            Image("QR") // Use the "QR" image from assets
                 .resizable()
                 .scaledToFit()
                 .frame(width: 80, height: 80)
-                .background(Color.white)
                 .cornerRadius(10)
+                .onTapGesture {
+                    qrCodeTapped() // Trigger the callback
+                }
 
             // Ticket Info Section
             VStack(alignment: .leading, spacing: 8) {
@@ -101,5 +117,50 @@ struct ModernTicketCard: View {
         .cornerRadius(15)
         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 5)
         .padding(.horizontal)
+    }
+}
+
+// MARK: - QR Code Popup
+struct QRCodePopup: View {
+    let ticket: Ticket
+    let dismissAction: () -> Void
+
+    var body: some View {
+        ZStack {
+            // Dimmed background
+            Color.black.opacity(0.5)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    dismissAction() // Dismiss when tapping outside the popup
+                }
+
+            // Popup content
+            VStack(spacing: 16) {
+                Image("QR") // Use the "QR" image from assets
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 200, height: 200)
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(12)
+
+                Text(ticket.name)
+                    .font(.custom("Poppins-SemiBold", size: 18))
+                    .foregroundColor(.black)
+
+                Button(action: dismissAction) {
+                    Text("Close")
+                        .font(.custom("Poppins-Regular", size: 16))
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Constants.Design.secondaryColor)
+                        .cornerRadius(12)
+                }
+            }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(20)
+            .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 5)
+        }
     }
 }
