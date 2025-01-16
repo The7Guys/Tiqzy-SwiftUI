@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import Firebase
 
 @main
 struct TiqzyApp: App {
@@ -11,6 +12,9 @@ struct TiqzyApp: App {
         // Determine if onboarding needs to be shown
         let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
         _showOnboarding = State(initialValue: !hasSeenOnboarding)
+        
+        FirebaseApp.configure()
+        print("Firebase App Initialized")
     }
 
     var body: some Scene {

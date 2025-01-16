@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct FavoritesView: View {
-    @State private var isLoggedIn = false // Replace with actual logic for user login status
+    @State private var isLoggedIn = false // Track user login status
+    @State private var errorMessage: String? // Track error messages
 
     var body: some View {
         VStack {
@@ -18,6 +19,13 @@ struct FavoritesView: View {
                         .multilineTextAlignment(.center)
                         .foregroundColor(.gray)
 
+                    if let errorMessage = errorMessage {
+                        Text(errorMessage)
+                            .font(.custom("Poppins-Regular", size: 14))
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                    }
+
                     NavigationLink(destination: LoginView()) {
                         Text("Log In")
                             .font(.custom("Poppins-SemiBold", size: 20))
@@ -32,6 +40,20 @@ struct FavoritesView: View {
         }
         .navigationTitle("Favorites")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            checkAuthentication()
+        }
+    }
+
+    // MARK: - Check Authentication
+    private func checkAuthentication() {
+        do {
+            _ = try AuthManager.shared.getAuthenticatedUser()
+            isLoggedIn = true
+        } catch {
+            isLoggedIn = false
+            errorMessage = "You are not logged in. Please log in to continue."
+        }
     }
 }
 

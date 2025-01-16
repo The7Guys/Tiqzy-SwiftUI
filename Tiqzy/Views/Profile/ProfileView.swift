@@ -53,10 +53,19 @@ struct ProfileView: View {
                 Spacer()
 
                 // Log Out Button
-                Text("Log out")
-                    .font(.custom("Poppins-Regular", size: 22))
-                    .foregroundColor(Constants.Design.primaryColor)
-                    .padding(.bottom, 24)
+                Button(action: {
+                    do {
+                        try viewModel.logOut() // Attempt to log out
+                    } catch {
+                        print("Error logging out: \(error.localizedDescription)")
+                        // You can add additional error handling or user notifications here
+                    }
+                }) {
+                    Text("Log out")
+                        .font(.custom("Poppins-Regular", size: 22))
+                        .foregroundColor(Constants.Design.primaryColor)
+                        .padding(.bottom, 24)
+                }
             }
             .navigationBarHidden(true)
             .background(Color(.systemGroupedBackground).ignoresSafeArea())

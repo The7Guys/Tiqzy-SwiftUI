@@ -11,6 +11,7 @@ enum Destination {
     case favorites, pastOrders, payment, settings, help
 }
 
+@MainActor
 class ProfileViewModel: ObservableObject {
     // Menu items to display in the view
     let menuItems: [MenuItem] = [
@@ -23,4 +24,8 @@ class ProfileViewModel: ObservableObject {
 
     // Binding for navigation
     @Published var selectedDestination: Destination? = nil // Tracks the selected menu destination
+    
+    func logOut() throws{
+        try AuthManager.shared.signOut()
+    }
 }

@@ -11,42 +11,19 @@ class RegisterViewModel: ObservableObject {
     
     private var cancellables = Set<AnyCancellable>()
     
-    // MARK: - Register User
     func register() {
-        guard !name.isEmpty, !email.isEmpty, !password.isEmpty else {
-            errorMessage = "All fields are required."
+        guard !email.isEmpty, !password.isEmpty else {
+            print("No email or password found")
             return
         }
+        Task {
+            do{
+                let returnedUserData = try await AuthManager.shared.createUser(email: email, password: password)
+                print("Successfully created user: \(returnedUserData)")
+            } catch {
+                print("Error creating user: \(error.localizedDescription)")
+            }
+        }
         
-        isLoading = true
-        errorMessage = nil
-        
-        let registerRequest = RegisterRequest(name: name, email: email, password: password)
-        
-        APIService.shared.register(request: registerRequest)
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { [weak self] completion in
-                guard let self = self else { return }
-                self.isLoading = false
-                
-                switch completion {
-                case .finished:
-                    break
-                case .failure(let error):
-                    self.errorMessage = error.localizedDescription
-                }
-            }, receiveValue: { [weak self] response in
-                guard let self = self else { return }
-                print("Registration successful: \(response)")
-                
-                // Save token if registration is successful
-                if response.success {
-                    TokenManager.shared.saveToken(response.token)
-                    self.isRegistrationSuccessful = true
-                } else {
-                    self.errorMessage = response.message
-                }
-            })
-            .store(in: &cancellables)
     }
 }
