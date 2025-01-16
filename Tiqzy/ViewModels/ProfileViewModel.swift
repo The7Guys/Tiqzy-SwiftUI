@@ -22,10 +22,30 @@ class ProfileViewModel: ObservableObject {
         MenuItem(title: "Help & Support", icon: "questionmark.circle", destination: .help)
     ]
 
-    // Binding for navigation
-    @Published var selectedDestination: Destination? = nil // Tracks the selected menu destination
-    
-    func logOut() throws{
+    // State to hold the user's name
+    @Published var userName: String? = nil
+    @Published var isLoggedIn: Bool = false // Tracks if the user is logged in
+
+    init() {
+        loadAuthenticatedUser()
+    }
+
+    /// Fetch the currently authenticated user's name
+    func loadAuthenticatedUser() {
+        do {
+            let user = try AuthManager.shared.getAuthenticatedUser()
+            self.userName = user.name ?? "Guest" // Show the displayName or "Guest" as a fallback
+            self.isLoggedIn = true
+        } catch {
+            self.userName = nil
+            self.isLoggedIn = false
+        }
+    }
+
+    /// Log out the user
+    func logOut() throws {
         try AuthManager.shared.signOut()
+        self.userName = nil
+        self.isLoggedIn = false
     }
 }

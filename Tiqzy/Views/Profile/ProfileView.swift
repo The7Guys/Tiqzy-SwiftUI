@@ -13,10 +13,18 @@ struct ProfileView: View {
                         .frame(width: 60, height: 60)
                         .foregroundColor(Constants.Design.primaryColor)
 
-                    NavigationLink(destination: LoginView()) {
-                        Text("Log In")
+                    if viewModel.isLoggedIn {
+                        // Show the user's name when logged in
+                        Text(viewModel.userName ?? "Guest")
                             .font(.custom("Poppins-SemiBold", size: 34))
                             .foregroundColor(Constants.Design.primaryColor)
+                    } else {
+                        // Show "Log In" button when no user is logged in
+                        NavigationLink(destination: LoginView()) {
+                            Text("Log In")
+                                .font(.custom("Poppins-SemiBold", size: 34))
+                                .foregroundColor(Constants.Design.primaryColor)
+                        }
                     }
 
                     Spacer()
@@ -53,18 +61,19 @@ struct ProfileView: View {
                 Spacer()
 
                 // Log Out Button
-                Button(action: {
-                    do {
-                        try viewModel.logOut() // Attempt to log out
-                    } catch {
-                        print("Error logging out: \(error.localizedDescription)")
-                        // You can add additional error handling or user notifications here
+                if viewModel.isLoggedIn {
+                    Button(action: {
+                        do {
+                            try viewModel.logOut()
+                        } catch {
+                            print("Error logging out: \(error.localizedDescription)")
+                        }
+                    }) {
+                        Text("Log out")
+                            .font(.custom("Poppins-Regular", size: 22))
+                            .foregroundColor(Constants.Design.primaryColor)
+                            .padding(.bottom, 24)
                     }
-                }) {
-                    Text("Log out")
-                        .font(.custom("Poppins-Regular", size: 22))
-                        .foregroundColor(Constants.Design.primaryColor)
-                        .padding(.bottom, 24)
                 }
             }
             .navigationBarHidden(true)
@@ -72,6 +81,9 @@ struct ProfileView: View {
             .navigationDestination(for: Destination.self) { destination in
                 destinationView(for: destination)
             }
+        }
+        .onAppear {
+            viewModel.loadAuthenticatedUser() // Reload user data on appear
         }
     }
 
@@ -93,8 +105,4 @@ struct ProfileView: View {
             HelpView()
         }
     }
-}
-
-#Preview {
-    ProfileView()
 }

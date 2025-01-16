@@ -9,19 +9,28 @@ class LoginViewModel: ObservableObject {
     @Published var isLoggedIn: Bool = false // Indicates if login is successful
 
     func logIn() {
-        guard !email.isEmpty, !password.isEmpty else {
-            print("No email or password found")
-            return
-        }
+        guard validateInput() else { return }
+
+        isLoading = true
+        errorMessage = nil
+
         Task {
-            do{
+            do {
                 let returnedUserData = try await AuthManager.shared.signIn(email: email, password: password)
-                print("Successfully created user: \(returnedUserData)")
+                print("Successfully logged in user: \(returnedUserData)")
+                await MainActor.run {
+                    self.isLoggedIn = true // Mark as logged in
+                }
             } catch {
-                print("Error creating user: \(error.localizedDescription)")
+                await MainActor.run {
+                    self.errorMessage = "Error logging in: \(error.localizedDescription)"
+                    self.isLoggedIn = false
+                }
+            }
+            await MainActor.run {
+                self.isLoading = false
             }
         }
-        
     }
 
     private func validateInput() -> Bool {
@@ -35,5 +44,4 @@ class LoginViewModel: ObservableObject {
         }
         return true
     }
-
 }
