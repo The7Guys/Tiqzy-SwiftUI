@@ -43,7 +43,7 @@ class EventDetailViewModel: ObservableObject {
     // Generate share content
     func generateShareContent() -> [Any] {
         guard let event = event else { return ["Check out this event!"] }
-        let shareText = "\(event.title)\nLocation: \(event.venueAddress ?? "Somewhere")\nDetails: \(event.description)"
+        let shareText = "\(event.title)\nLocation: \(event.venueAddress ?? "Somewhere")\nDetails: \(event.summary)"
         return [shareText]
     }
 

@@ -154,7 +154,7 @@ struct EventDetailView: View {
                 
                 // Event Description
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(viewModel.event?.description ?? "Loading description...")
+                    Text(viewModel.event?.summary ?? "Loading description...")
                         .font(.custom("Poppins-Regular", size: 16))
                         .foregroundColor(Constants.Design.primaryColor)
                         .multilineTextAlignment(.leading)
@@ -213,57 +213,60 @@ struct EventDetailView: View {
 
     /// Manages the favorite state of the event.
     private func toggleFavorite() {
+        guard let event = viewModel.event else { return }
+
         if isFavorite {
-            removeFavorite(eventID)
+            removeFavorite(eventID: event.id)
         } else {
-            addFavorite(viewModel.event)
+            addFavorite(event)
         }
-        isFavorite.toggle()
+        isFavorite = isEventFavorite(event.id) // Synchronize state with the model
     }
 
-    /// Adds the event to the favorites.
-    private func addFavorite(_ event: Event?) {
-        guard let event = event else { return }
-        
-        let favoriteEvent = FavoriteEvent(
-            id: event.id,
-            title: event.title,
-            description: event.description,
-            startDate: event.startDate,
-            endDate: event.endDate,
-            venueAddress: event.venueAddress,
-            location: event.location,
-            duration: event.duration,
-            imageURL: event.imageURL,
-            price: event.price,
-            category: event.category
-        )
-        
-        modelContext.insert(favoriteEvent) // Insert the FavoriteEvent into the container
-        try? modelContext.save() // Save changes to persist the favorite
+    /// Marks the event as favorite and saves it.
+    private func addFavorite(_ event: Event) {
+        // Check if the event is already in favorites
+        if !isEventFavorite(event.id) {
+            let favoriteEvent = Event(
+                id: event.id,
+                title: event.title,
+                summary: event.summary,
+                startDate: event.startDate,
+                endDate: event.endDate,
+                venueAddress: event.venueAddress,
+                location: event.location,
+                duration: event.duration,
+                imageURL: event.imageURL,
+                price: event.price,
+                stock: event.stock,
+                category: event.category,
+                isFavorite: true // Ensure this reflects the favorite state
+            )
+            modelContext.insert(favoriteEvent)
+            try? modelContext.save() // Persist the new favorite
+        }
     }
 
-    /// Removes the event from the favorites.
-    private func removeFavorite(_ id: Int) {
-        if let favorite = fetchFavorite(by: id) {
-            modelContext.delete(favorite) // Delete the favorite from the container
-            try? modelContext.save() // Save changes to persist the deletion
+    /// Unmarks the event as favorite and removes it from the context.
+    private func removeFavorite(eventID: Int) {
+        // Fetch and delete the favorite event
+        if let favorite = fetchEvent(by: eventID) {
+            modelContext.delete(favorite) // Remove the event
+            try? modelContext.save() // Persist changes
         }
     }
 
     /// Checks if the event is already a favorite.
     private func isEventFavorite(_ id: Int) -> Bool {
-        return fetchFavorite(by: id) != nil
+        fetchEvent(by: id) != nil
     }
 
-    /// Fetches the favorite event from the container by ID.
-    private func fetchFavorite(by id: Int) -> FavoriteEvent? {
-        // Create a FetchDescriptor with a predicate to filter by ID
-        let descriptor = FetchDescriptor<FavoriteEvent>(
+    /// Fetches the event from the container by ID.
+    private func fetchEvent(by id: Int) -> Event? {
+        // Create a FetchDescriptor to filter by event ID
+        let descriptor = FetchDescriptor<Event>(
             predicate: #Predicate { $0.id == id }
         )
-        
-        // Perform the fetch using the descriptor
         return try? modelContext.fetch(descriptor).first
     }
 }

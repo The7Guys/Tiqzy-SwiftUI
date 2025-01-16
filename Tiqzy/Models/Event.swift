@@ -1,26 +1,30 @@
 import Foundation
+import SwiftData
 
-struct Event: Identifiable, Codable, Equatable {
-    let id: Int
-    let title: String
-    var description: String
-    let startDate: String
-    let endDate: String
-    let venueAddress: String?
-    let location: String?
-    let duration: Int
-    let imageURL: String?
-    let price: Double?
-    let stock: Int
-    let category: String? // New property for category
+@Model
+class Event: Identifiable, Codable, Equatable {
+    @Attribute(.unique) var id: Int // Unique identifier for the event
+    var title: String
+    var summary: String // Renamed from `description` to `summary`
+    var startDate: String
+    var endDate: String
+    var venueAddress: String?
+    var location: String?
+    var duration: Int
+    var imageURL: String?
+    var price: Double?
+    var stock: Int // For regular events
+    var category: String?
+    var isFavorite: Bool = false // Tracks if this event is favorited
 
+    // MARK: - Coding Keys
     private enum CodingKeys: String, CodingKey {
-        case id, title, description, stock, price, duration_minutes
+        case id, title, summary = "description", stock, price, duration_minutes
         case startDate = "start_date"
         case endDate = "end_date"
         case venue
         case image
-        case category // Category key in the JSON
+        case category
     }
 
     private enum VenueCodingKeys: String, CodingKey {
@@ -32,20 +36,55 @@ struct Event: Identifiable, Codable, Equatable {
         case url
     }
 
-    init(from decoder: Decoder) throws {
+    // MARK: - Initializer for Regular and Favorite Events
+    init(
+        id: Int,
+        title: String,
+        summary: String,
+        startDate: String,
+        endDate: String,
+        venueAddress: String? = nil,
+        location: String? = nil,
+        duration: Int,
+        imageURL: String? = nil,
+        price: Double? = nil,
+        stock: Int = 0,
+        category: String? = nil,
+        isFavorite: Bool = false
+    ) {
+        self.id = id
+        self.title = title
+        self.summary = summary
+        self.startDate = startDate
+        self.endDate = endDate
+        self.venueAddress = venueAddress
+        self.location = location
+        self.duration = duration
+        self.imageURL = imageURL
+        self.price = price
+        self.stock = stock
+        self.category = category
+        self.isFavorite = isFavorite
+    }
+
+    // MARK: - Codable Conformance
+    required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         // Decode top-level fields
         id = try container.decode(Int.self, forKey: .id)
         title = try container.decode(String.self, forKey: .title)
-        description = try container.decode(String.self, forKey: .description)
-        description = description.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression) // Remove HTML tags
+
+        // Use a temporary variable for `description` processing
+        let rawDescription = try container.decode(String.self, forKey: .summary)
+        summary = rawDescription.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+
         startDate = try container.decode(String.self, forKey: .startDate)
         endDate = try container.decode(String.self, forKey: .endDate)
         stock = try container.decode(Int.self, forKey: .stock)
         price = try container.decodeIfPresent(Double.self, forKey: .price)
         duration = try container.decode(Int.self, forKey: .duration_minutes)
-        category = try container.decodeIfPresent(String.self, forKey: .category) // Decode the category
+        category = try container.decodeIfPresent(String.self, forKey: .category)
 
         // Decode nested venue fields
         if let venueContainer = try? container.nestedContainer(keyedBy: VenueCodingKeys.self, forKey: .venue) {
@@ -70,13 +109,13 @@ struct Event: Identifiable, Codable, Equatable {
         // Encode top-level fields
         try container.encode(id, forKey: .id)
         try container.encode(title, forKey: .title)
-        try container.encode(description, forKey: .description)
+        try container.encode(summary, forKey: .summary)
         try container.encode(startDate, forKey: .startDate)
         try container.encode(endDate, forKey: .endDate)
         try container.encode(stock, forKey: .stock)
         try container.encode(duration, forKey: .duration_minutes)
         try container.encodeIfPresent(price, forKey: .price)
-        try container.encodeIfPresent(category, forKey: .category) // Encode the category
+        try container.encodeIfPresent(category, forKey: .category)
 
         // Encode nested venue fields
         var venueContainer = container.nestedContainer(keyedBy: VenueCodingKeys.self, forKey: .venue)
@@ -86,5 +125,10 @@ struct Event: Identifiable, Codable, Equatable {
         // Encode nested image URL
         var imageContainer = container.nestedContainer(keyedBy: ImageCodingKeys.self, forKey: .image)
         try imageContainer.encodeIfPresent(imageURL, forKey: .url)
+    }
+
+    // MARK: - Equatable
+    static func == (lhs: Event, rhs: Event) -> Bool {
+        return lhs.id == rhs.id
     }
 }

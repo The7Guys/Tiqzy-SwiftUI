@@ -56,7 +56,7 @@ struct EventCard: View {
                 }
 
                 // Description
-                Text(event.description)
+                Text(event.summary)
                     .font(.custom("Poppins-Regular", size: 12))
                     .foregroundColor(Constants.Design.primaryColor)
                     .lineLimit(2)
@@ -105,5 +105,3 @@ struct EventCard: View {
         }
     }
 }
-
-//http://localhost:3000/api/v1/tickets?start_date=2025-01-06&venueCity=Beverwijk
