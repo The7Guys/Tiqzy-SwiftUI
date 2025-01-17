@@ -1,5 +1,7 @@
 import SwiftUI
 import SwiftData
+import FirebaseAuth
+import FirebaseFirestore
 
 struct EventDetailView: View {
     @StateObject private var viewModel: EventDetailViewModel
@@ -9,6 +11,7 @@ struct EventDetailView: View {
     @State private var showShareSheet = false // State for triggering share sheet
     @Environment(\.modelContext) private var modelContext // Access Swift Data context
     @State private var isFavorite: Bool = false // Tracks if the Pokémon is a favorite
+    private let db = Firestore.firestore() // Firestore instance
     
     init(eventID: Int) {
         self.eventID = eventID
@@ -189,25 +192,29 @@ struct EventDetailView: View {
     private func saveTicket() {
         guard let event = viewModel.event else { return }
         
-        let ticket = Ticket(
-            id: UUID().uuidString,
-            name: event.title,
-            imageUrl: event.imageURL ?? "",
-            location: event.location ?? "",
-            date: event.startDate, // Ensure the event has a valid `Date`
-            duration: event.duration,
-            price: event.price ?? 0.0
-        )
+        // Generate a unique ID for the ticket
+        let ticketID = UUID().uuidString
         
-        // Save ticket using Swift Data
-        modelContext.insert(ticket)
-        try? modelContext.save()
+        // Prepare ticket data for Firebase
+        let ticketData: [String: Any] = [
+            "id": ticketID,
+            "userId": Auth.auth().currentUser?.uid ?? "unknown_user",
+            "name": event.title,
+            "imageURL": event.imageURL ?? "",
+            "location": event.location ?? "",
+            "date": event.startDate,
+            "timeframe": "\(event.startDate) - \(event.endDate)"
+        ]
         
-        // Increment the new ticket count
-        AppState.shared.newTicketCount += 1
-        
-        // Confirmation message
-        print("Ticket saved: \(ticket.name)")
+        // Use the TicketService to save the ticket
+        let ticketService = TicketService()
+        ticketService.addTicket(Ticket(from: ticketData)) { error in
+            if let error = error {
+                print("Error saving ticket: \(error.localizedDescription)")
+            } else {
+                print("Ticket saved successfully!")
+            }
+        }
     }
     // MARK: - Favorite Logic
 

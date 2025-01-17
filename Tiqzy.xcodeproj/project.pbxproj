@@ -27,6 +27,7 @@
 		75813EEA2D08FD6200076442 /* Poppins-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 75813ECA2D08FD6200076442 /* Poppins-ExtraBoldItalic.ttf */; };
 		75D5BB722D388A12008F05EB /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 75D5BB712D388A12008F05EB /* FirebaseAnalytics */; };
 		75D5BB752D3890F5008F05EB /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 75D5BB742D3890F5008F05EB /* FirebaseAuth */; };
+		75D5BDB82D3AB477008F05EB /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 75D5BDB72D3AB477008F05EB /* FirebaseFirestore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -108,6 +109,7 @@
 			files = (
 				75D5BB722D388A12008F05EB /* FirebaseAnalytics in Frameworks */,
 				75D5BB752D3890F5008F05EB /* FirebaseAuth in Frameworks */,
+				75D5BDB82D3AB477008F05EB /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -204,6 +206,7 @@
 			packageProductDependencies = (
 				75D5BB712D388A12008F05EB /* FirebaseAnalytics */,
 				75D5BB742D3890F5008F05EB /* FirebaseAuth */,
+				75D5BDB72D3AB477008F05EB /* FirebaseFirestore */,
 			);
 			productName = Tiqzy;
 			productReference = 75813E572D07CD8200076442 /* Tiqzy.app */;
@@ -695,6 +698,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 75D5BB702D388A12008F05EB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
+		};
+		75D5BDB72D3AB477008F05EB /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 75D5BB702D388A12008F05EB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

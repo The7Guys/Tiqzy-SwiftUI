@@ -51,7 +51,7 @@ struct TiqzyApp: App {
             }
             .animation(.easeInOut(duration: 1.0), value: showSplashScreen) // Smooth animation
         }
-        .modelContainer(for: [Ticket.self, Event.self])
+        .modelContainer(for: [Event.self])
     }
     
 }
