@@ -8,8 +8,11 @@ class LoginViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isLoggedIn: Bool = false // Indicates if login is successful
 
-    func logIn() {
-        guard validateInput() else { return }
+    func logIn(completion: @escaping (Bool) -> Void) {
+        guard validateInput() else {
+            completion(false)
+            return
+        }
 
         isLoading = true
         errorMessage = nil
@@ -20,11 +23,13 @@ class LoginViewModel: ObservableObject {
                 print("Successfully logged in user: \(returnedUserData)")
                 await MainActor.run {
                     self.isLoggedIn = true // Mark as logged in
+                    completion(true) // Notify success
                 }
             } catch {
                 await MainActor.run {
                     self.errorMessage = "Error logging in: \(error.localizedDescription)"
                     self.isLoggedIn = false
+                    completion(false) // Notify failure
                 }
             }
             await MainActor.run {

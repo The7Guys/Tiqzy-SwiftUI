@@ -3,7 +3,6 @@ import SwiftUI
 struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
     @Environment(\.dismiss) private var dismiss // Used to dismiss the login screen
-    @State private var navigateToProfile = false // Tracks navigation to ProfileView
 
     var body: some View {
         NavigationStack {
@@ -48,7 +47,11 @@ struct LoginView: View {
 
                 // Log In Button
                 Button(action: {
-                    viewModel.logIn()
+                    viewModel.logIn { success in
+                        if success {
+                            dismiss() // Dismiss the LoginView to return to the previous screen
+                        }
+                    }
                 }) {
                     if viewModel.isLoading {
                         ProgressView()
@@ -93,14 +96,6 @@ struct LoginView: View {
                             .font(.custom("Poppins-Regular", size: 14))
                             .foregroundColor(Constants.Design.secondaryColor)
                     }
-                }
-
-                // Navigation to ProfileView
-                NavigationLink(
-                    destination: ProfileView(),
-                    isActive: $viewModel.isLoggedIn
-                ) {
-                    EmptyView() // Invisible navigation link
                 }
             }
             .padding()

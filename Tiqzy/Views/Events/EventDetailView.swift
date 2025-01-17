@@ -81,8 +81,10 @@ struct EventDetailView: View {
                             HStack(spacing: 16) {
                                 Button(action: toggleFavorite) {
                                     Image(systemName: isFavorite ? "heart.fill" : "heart")
-                                        .foregroundColor(.red)
-                                        .font(.title)
+                                        .foregroundColor(.white)
+                                        .font(.title2)
+                                        .padding(10)
+                                        .background(Circle().fill(Color.black))
                                 }
                                 .onAppear {
                                     isFavorite = isEventFavorite(eventID)
@@ -201,7 +203,7 @@ struct EventDetailView: View {
             "userId": Auth.auth().currentUser?.uid ?? "unknown_user",
             "name": event.title,
             "imageURL": event.imageURL ?? "",
-            "location": event.location ?? "",
+            "location": event.venueAddress ?? "",
             "date": event.startDate,
             "timeframe": "\(event.startDate) - \(event.endDate)"
         ]
@@ -213,6 +215,11 @@ struct EventDetailView: View {
                 print("Error saving ticket: \(error.localizedDescription)")
             } else {
                 print("Ticket saved successfully!")
+                
+                // Increment the ticket count
+                DispatchQueue.main.async {
+                    AppState.shared.newTicketCount += 1
+                }
             }
         }
     }
