@@ -1,7 +1,10 @@
 import SwiftUI
+import SwiftData
 
 struct EventCard: View {
     let event: Event
+    @Environment(\.modelContext) private var modelContext
+    @State private var isFavorite: Bool = false // Tracks favorite state
 
     var body: some View {
         HStack(spacing: 0) { // Align image and details seamlessly
@@ -9,7 +12,6 @@ struct EventCard: View {
             AsyncImage(url: URL(string: event.imageURL ?? "")) { phase in
                 switch phase {
                 case .empty:
-                    // Placeholder while loading
                     Image("EventImage")
                         .resizable()
                         .scaledToFill()
@@ -17,7 +19,6 @@ struct EventCard: View {
                         .frame(maxHeight: .infinity)
                         .clipped()
                 case .success(let image):
-                    // Successfully loaded image
                     image
                         .resizable()
                         .scaledToFill()
@@ -25,7 +26,6 @@ struct EventCard: View {
                         .frame(maxHeight: .infinity)
                         .clipped()
                 case .failure:
-                    // Failed to load, show placeholder
                     Image("EventImage")
                         .resizable()
                         .scaledToFill()
@@ -39,10 +39,24 @@ struct EventCard: View {
 
             // Event Details
             VStack(alignment: .leading, spacing: 8) {
-                // Event Title
-                Text(event.title)
-                    .font(.custom("Poppins-SemiBold", size: 14))
-                    .foregroundColor(Constants.Design.primaryColor)
+                // Event Title and Favorite Button
+                HStack {
+                    Text(event.title)
+                        .font(.custom("Poppins-SemiBold", size: 14))
+                        .foregroundColor(Constants.Design.primaryColor)
+
+                    Spacer()
+
+                    Button(action: toggleFavorite) {
+                        Image(systemName: isFavorite ? "heart.fill" : "heart")
+                            .resizable() // Enable resizing of the image
+                            .scaledToFit() // Keep the proportions
+                            .frame(width: 22, height: 22) // Set custom size for the heart
+                            .foregroundColor(isFavorite ? .red : Color.primary) // Adjust color
+                    }
+                    .onAppear {
+                        isFavorite = isEventFavorite(event.id)
+                    }                }
 
                 // Location
                 HStack(spacing: 4) {
@@ -50,7 +64,7 @@ struct EventCard: View {
                         .font(.caption)
                         .foregroundColor(Constants.Design.primaryColor)
 
-                    Text(event.location ?? "Bunga")
+                    Text(event.location ?? "Unknown")
                         .font(.custom("Poppins-Regular", size: 12))
                         .foregroundColor(Constants.Design.primaryColor)
                 }
@@ -71,9 +85,9 @@ struct EventCard: View {
 
                         Text(
                             formatDuration(event.duration)
-                        ) // Use formatted duration
-                            .font(.custom("Poppins-Regular", size: 12))
-                            .foregroundColor(Constants.Design.primaryColor)
+                        )
+                        .font(.custom("Poppins-Regular", size: 12))
+                        .foregroundColor(Constants.Design.primaryColor)
                     }
 
                     Spacer()
@@ -92,6 +106,53 @@ struct EventCard: View {
                 .stroke(Constants.Design.primaryColor, lineWidth: 2)
         )
         .cornerRadius(12)
+    }
+
+    // MARK: - Helper Methods for Favorites
+    private func toggleFavorite() {
+        if isFavorite {
+            removeFavorite(eventID: event.id)
+        } else {
+            addFavorite(event)
+        }
+        isFavorite.toggle()
+    }
+
+    private func isEventFavorite(_ id: Int) -> Bool {
+        let descriptor = FetchDescriptor<Event>(predicate: #Predicate { $0.id == id })
+        return (try? modelContext.fetch(descriptor).first) != nil
+    }
+
+    private func addFavorite(_ event: Event) {
+        let favoriteEvent = Event(
+            id: event.id,
+            title: event.title,
+            summary: event.summary,
+            startDate: event.startDate,
+            endDate: event.endDate,
+            venueAddress: event.venueAddress,
+            location: event.location,
+            duration: event.duration,
+            imageURL: event.imageURL,
+            price: event.price,
+            stock: event.stock,
+            category: event.category,
+            isFavorite: true
+        )
+        modelContext.insert(favoriteEvent)
+        try? modelContext.save()
+    }
+
+    private func removeFavorite(eventID: Int) {
+        if let favoriteEvent = fetchEvent(by: eventID) {
+            modelContext.delete(favoriteEvent)
+            try? modelContext.save()
+        }
+    }
+
+    private func fetchEvent(by id: Int) -> Event? {
+        let descriptor = FetchDescriptor<Event>(predicate: #Predicate { $0.id == id })
+        return try? modelContext.fetch(descriptor).first
     }
 
     // Helper function to format the duration

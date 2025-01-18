@@ -10,7 +10,7 @@ struct EventDetailView: View {
     @Environment(\.dismiss) private var dismiss // Environment dismiss action
     @State private var showShareSheet = false // State for triggering share sheet
     @Environment(\.modelContext) private var modelContext // Access Swift Data context
-    @State private var isFavorite: Bool = false // Tracks if the Pokémon is a favorite
+    @State private var isFavorite: Bool = false // Tracks if the event is a favorite
     private let db = Firestore.firestore() // Firestore instance
     
     init(eventID: Int) {
@@ -19,154 +19,165 @@ struct EventDetailView: View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                ZStack {
-                    // Event Image
-                    AsyncImage(url: URL(string: viewModel.event?.imageURL ?? "")) { phase in
-                        switch phase {
-                        case .empty:
-                            // Placeholder while loading
-                            Image("EventImage")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: UIScreen.main.bounds.width - 32, height: 400) // Adjust width and height
-                                .clipped()
-                                .cornerRadius(12)
-                        case .success(let image):
-                            // Successfully loaded image
-                            image
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: UIScreen.main.bounds.width - 32, height: 400) // Adjust width and height
-                                .clipped()
-                                .cornerRadius(12)
-                        case .failure:
-                            // Failed to load, show fallback
-                            Image("EventImage")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: UIScreen.main.bounds.width - 32, height: 400) // Adjust width and height
-                                .clipped()
-                                .cornerRadius(12)
-                        @unknown default:
-                            EmptyView()
-                        }
-                    }
-                    
-                    // Top-right "X" Button
-                    VStack {
-                        HStack {
-                            Spacer()
-                            Button(action: {
-                                dismiss() // Navigate back to the previous page
-                            }) {
-                                Image(systemName: "xmark")
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .frame(width:12, height: 12)
-                                    .padding()
-                                    .background(Circle().fill(Color.black))
-                            }
-                            .padding(16)
-                        }
-                        Spacer()
-                    }
-                    
-                    // Bottom-right action buttons
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Spacer()
-                            HStack(spacing: 16) {
-                                Button(action: toggleFavorite) {
-                                    Image(systemName: isFavorite ? "heart.fill" : "heart")
-                                        .foregroundColor(.white)
-                                        .font(.title2)
-                                        .padding(10)
-                                        .background(Circle().fill(Color.black))
-                                }
-                                .onAppear {
-                                    isFavorite = isEventFavorite(eventID)
-                                }
-                                
-                                Button(action: {
-                                    showMapDialog = true // Show dialog
-                                }) {
-                                    Image(systemName: "map")
-                                        .font(.title2)
-                                        .foregroundColor(.white)
-                                        .padding(10)
-                                        .background(Circle().fill(Color.black))
-                                }
-                                
-                                Button(action: {
-                                    showShareSheet = true // Trigger share sheet
-                                }) {
-                                    Image(systemName: "square.and.arrow.up")
-                                        .font(.title2)
-                                        .offset(y: -2)
-                                        .foregroundColor(.white)
-                                        .padding(10)
-                                        .background(Circle().fill(Color.black))
+        ZStack {
+            // Main Content
+            if viewModel.isLoading {
+                // Display a full-screen loading indicator while data is loading
+                VStack {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                        .scaleEffect(1.5) // Make it larger for emphasis
+                    Text("Loading event details...")
+                        .font(.custom("Poppins-Medium", size: 18))
+                        .foregroundColor(Constants.Design.primaryColor)
+                        .padding(.top, 16)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.systemBackground)) // Matches app background
+                .ignoresSafeArea()
+            } else {
+                // Show actual content once loading is complete
+                ScrollView {
+                    VStack(spacing: 16) {
+                        ZStack {
+                            // Event Image
+                            AsyncImage(url: URL(string: viewModel.event?.imageURL ?? "")) { phase in
+                                if let image = phase.image {
+                                    // Successfully loaded image
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: UIScreen.main.bounds.width - 32, height: 400)
+                                        .clipped()
+                                        .cornerRadius(12)
+                                        .transition(.opacity) // Smooth transition
+                                } else if phase.error != nil {
+                                    // Error loading image, show fallback
+                                    Image("EventImage")
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: UIScreen.main.bounds.width - 32, height: 400)
+                                        .clipped()
+                                        .cornerRadius(12)
+                                } else {
+                                    // Placeholder while loading
+                                    ZStack {
+                                        Color.gray.opacity(0.2) // Placeholder background
+                                            .frame(width: UIScreen.main.bounds.width - 32, height: 400)
+                                            .cornerRadius(12)
+                                        
+                                        ProgressView() // Loading spinner
+                                            .scaleEffect(1.5) // Adjust size of spinner
+                                    }
                                 }
                             }
-                            .padding(16)
+                            
+                            // Top-right "X" Button
+                            VStack {
+                                HStack {
+                                    Spacer()
+                                    Button(action: { dismiss() }) {
+                                        Image(systemName: "xmark")
+                                            .font(.system(size: 20, weight: .bold))
+                                            .foregroundColor(.white)
+                                            .frame(width: 12, height: 12)
+                                            .padding()
+                                            .background(Circle().fill(Color.black))
+                                    }
+                                    .padding(16)
+                                }
+                                Spacer()
+                            }
+                            
+                            // Bottom-right action buttons
+                            VStack {
+                                Spacer()
+                                HStack {
+                                    Spacer()
+                                    HStack(spacing: 16) {
+                                        Button(action: toggleFavorite) {
+                                            Image(systemName: isFavorite ? "heart.fill" : "heart")
+                                                .foregroundColor(isFavorite ? .red : .white)
+                                                .font(.title2)
+                                                .padding(10)
+                                                .background(Circle().fill(Color.black))
+                                        }
+                                        .onAppear {
+                                            isFavorite = isEventFavorite(eventID)
+                                        }
+                                        
+                                        Button(action: { showMapDialog = true }) {
+                                            Image(systemName: "map")
+                                                .font(.title2)
+                                                .foregroundColor(.white)
+                                                .padding(10)
+                                                .background(Circle().fill(Color.black))
+                                        }
+                                        
+                                        Button(action: { showShareSheet = true }) {
+                                            Image(systemName: "square.and.arrow.up")
+                                                .font(.title2)
+                                                .offset(y: -2)
+                                                .foregroundColor(.white)
+                                                .padding(10)
+                                                .background(Circle().fill(Color.black))
+                                        }
+                                    }
+                                    .padding(16)
+                                }
+                            }
                         }
+                        .padding(.horizontal)
+                        
+                        // Event Title
+                        Text(viewModel.event?.title ?? "Loading...")
+                            .font(.custom("Poppins-Regular", size: 28))
+                            .foregroundColor(Constants.Design.primaryColor)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal)
+                        
+                        // Price Section
+                        HStack {
+                            Image(systemName: "location.fill")
+                                .foregroundColor(Constants.Design.primaryColor)
+                            Text(viewModel.event?.location ?? "")
+                                .font(.custom("Poppins-Regular", size: 18))
+                                .foregroundColor(Constants.Design.primaryColor)
+                            Spacer()
+                            Text("from")
+                                .font(.custom("Poppins-Regular", size: 14))
+                                .foregroundColor(Constants.Design.primaryColor)
+                                .offset(y: 5)
+                            Text(
+                                viewModel.event != nil ? "\(String(format: "%.2f€", viewModel.event!.price!))" : ""
+                            )
+                            .font(.custom("Poppins-Regular", size: 28))
+                            .foregroundColor(Constants.Design.primaryColor)
+                        }
+                        .padding(.horizontal)
+                        
+                        // Buy Ticket Button
+                        Button(action: saveTicket) {
+                            Text("Buy Ticket")
+                                .font(.custom("Poppins-Medium", size: 24))
+                                .frame(maxWidth: .infinity)
+                                .padding(10)
+                                .background(Constants.Design.secondaryColor)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                        }
+                        .padding(.horizontal)
+                        
+                        // Event Description
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(viewModel.event?.summary ?? "")
+                                .font(.custom("Poppins-Regular", size: 16))
+                                .foregroundColor(Constants.Design.primaryColor)
+                                .multilineTextAlignment(.leading)
+                        }
+                        .padding(.horizontal)
                     }
-                    
                 }
-                .padding(.horizontal)
-                
-                // Event Title
-                Text(viewModel.event?.title ?? "Loading...")
-                    .font(.custom("Poppins-Regular", size: 28)) // Larger font size
-                    .foregroundColor(Constants.Design.primaryColor)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
-                
-                // Price Section
-                HStack {
-                    Image(systemName: "location.fill")
-                        .foregroundColor(Constants.Design.primaryColor)
-                    Text(viewModel.event?.location ?? "Loading location...")
-                        .font(.custom("Poppins-Regular", size: 18)) // Larger font size
-                        .foregroundColor(Constants.Design.primaryColor)
-                    Spacer()
-                    Text("from")
-                        .font(.custom("Poppins-Regular", size: 14)) // Larger font size
-                        .foregroundColor(Constants.Design.primaryColor)
-                        .offset(y: 5)
-                    Text(
-                        viewModel.event != nil ? "\(String(format: "%.2f€", viewModel.event!.price!))" : "Loading price..."
-                    )
-                    .font(.custom("Poppins-Regular", size: 28)) // Larger font size
-                    .foregroundColor(Constants.Design.primaryColor)
-                }
-                .padding(.horizontal)
-                
-                // Buy Ticket Button
-                Button(action: saveTicket) {
-                    Text("Buy Ticket")
-                        .font(.custom("Poppins-Medium", size: 24)) // Larger font size
-                        .frame(maxWidth: .infinity)
-                        .padding(10)
-                        .background(Constants.Design.secondaryColor)
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                }
-                .padding(.horizontal)
-                
-                // Event Description
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(viewModel.event?.summary ?? "Loading description...")
-                        .font(.custom("Poppins-Regular", size: 16))
-                        .foregroundColor(Constants.Design.primaryColor)
-                        .multilineTextAlignment(.leading)
-                }
-                .padding(.horizontal)
-                
-                Spacer()
             }
         }
         .confirmationDialog("Open Maps?", isPresented: $showMapDialog, titleVisibility: .visible) {
@@ -223,7 +234,6 @@ struct EventDetailView: View {
             }
         }
     }
-    // MARK: - Favorite Logic
 
     /// Manages the favorite state of the event.
     private func toggleFavorite() {

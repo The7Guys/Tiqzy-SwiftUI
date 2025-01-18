@@ -4,7 +4,7 @@ import SwiftData
 struct FavoritesView: View {
     @Environment(\.modelContext) private var modelContext // Access SwiftData context
     @Query var favorites: [Event] // Fetch favorite events
-
+    
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading) {
@@ -14,21 +14,28 @@ struct FavoritesView: View {
                     .foregroundColor(Constants.Design.primaryColor)
                     .padding(.horizontal)
                     .padding(.top)
-
+                
                 if favorites.isEmpty {
-                    // No favorites to display
-                    VStack(spacing: 16) {
+                    // Improved "No Favorites" UI - Adjusted for content position
+                    VStack(spacing: 20) {
+                        Image("EmptyFavorites") // Add a placeholder image
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 200, height: 200)
+                            .padding(.top, 40) // Slightly more space from the title
+
                         Text("No favorite events yet!")
-                            .font(.custom("Poppins-Regular", size: 18))
-                            .foregroundColor(.gray)
+                            .font(.custom("Poppins-SemiBold", size: 20))
+                            .foregroundColor(Constants.Design.primaryColor)
                             .multilineTextAlignment(.center)
 
-                        Text("Explore events and add them to your favorites to see them here.")
-                            .font(.custom("Poppins-Regular", size: 14))
+                        Text("Start exploring and add events to your favorites to see them here.")
+                            .font(.custom("Poppins-Regular", size: 16))
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
                     }
-                    .padding()
+                    .frame(maxHeight: .infinity, alignment: .top) // Align content closer to the top
                 } else {
                     // Display favorite events using EventCard
                     ScrollView {
