@@ -1,11 +1,14 @@
 import SwiftUI
 
+/// A view for selecting a date from a calendar-like interface.
 struct DateView: View {
-    @Environment(\.dismiss) private var dismiss
-    @StateObject private var viewModel = DateViewModel()
+    @Environment(\.dismiss) private var dismiss // Environment variable for dismissing the view.
+    @StateObject private var viewModel = DateViewModel() // ViewModel to manage date-related logic.
 
-    var onDateSelected: (String) -> Void // Callback to pass the selected date
+    /// Callback to pass the selected date back to the parent view.
+    var onDateSelected: (String) -> Void
 
+    /// A computed property to display the current month and year in the header.
     private var displayedMonth: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
@@ -14,7 +17,7 @@ struct DateView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            // Header
+            // MARK: Header Section
             HStack {
                 Text("Select a Date")
                     .font(.custom("Poppins-SemiBold", size: 18))
@@ -22,6 +25,7 @@ struct DateView: View {
 
                 Spacer()
 
+                // Close Button
                 Button(action: { dismiss() }) {
                     Image(systemName: "xmark")
                         .foregroundColor(Constants.Design.primaryColor)
@@ -30,11 +34,12 @@ struct DateView: View {
             }
             .padding(.horizontal)
 
-            // Calendar Section
+            // MARK: Calendar Section
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     // Month Selector
                     HStack {
+                        // Navigate to the previous month
                         Button(action: viewModel.goToPreviousMonth) {
                             Image(systemName: "chevron.left")
                                 .foregroundColor(Constants.Design.primaryColor)
@@ -42,12 +47,14 @@ struct DateView: View {
 
                         Spacer()
 
+                        // Display the current month and year
                         Text(displayedMonth)
                             .font(.custom("Poppins-SemiBold", size: 18))
                             .foregroundColor(Constants.Design.secondaryColor)
 
                         Spacer()
 
+                        // Navigate to the next month
                         Button(action: viewModel.goToNextMonth) {
                             Image(systemName: "chevron.right")
                                 .foregroundColor(Constants.Design.primaryColor)
@@ -57,7 +64,7 @@ struct DateView: View {
 
                     // Calendar Grid
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
-                        // Days of the week
+                        // Days of the week labels
                         ForEach(["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"], id: \.self) { day in
                             Text(day)
                                 .font(.custom("Poppins-Regular", size: 12))
@@ -65,12 +72,14 @@ struct DateView: View {
                                 .frame(maxWidth: .infinity)
                         }
 
-                        // Days in the month
+                        // Days in the selected month
                         ForEach(viewModel.generateDaysForMonth(), id: \.self) { date in
                             if let date = date {
-                                Text("\(Calendar.current.component(.day, from: date))")
+                                Text("\(Calendar.current.component(.day, from: date))") // Display day number.
                                     .font(.custom("Poppins-Regular", size: 14))
-                                    .foregroundColor(viewModel.isSelected(date) ? .white : (viewModel.isToday(date) ? .red : Constants.Design.primaryColor))
+                                    .foregroundColor(
+                                        viewModel.isSelected(date) ? .white : (viewModel.isToday(date) ? .red : Constants.Design.primaryColor)
+                                    )
                                     .frame(maxWidth: .infinity)
                                     .padding(8)
                                     .background(
@@ -78,22 +87,22 @@ struct DateView: View {
                                             .fill(viewModel.isSelected(date) ? Constants.Design.secondaryColor : .clear)
                                     )
                                     .onTapGesture {
-                                        viewModel.handleDateSelection(date)
+                                        viewModel.handleDateSelection(date) // Handle date selection on tap.
                                     }
                             } else {
-                                Spacer()
+                                Spacer() // Empty spaces for days not in the current month.
                             }
                         }
                     }
                 }
             }
 
-            // "Select Date" Button
+            // MARK: "Select Date" Button
             Button(action: {
                 if let formattedDate = viewModel.getFormattedSelectedDate() {
-                    onDateSelected(formattedDate)
+                    onDateSelected(formattedDate) // Pass the selected date back via the callback.
                 }
-                dismiss()
+                dismiss() // Dismiss the view.
             }) {
                 Text("Select Date")
                     .font(.custom("Poppins-SemiBold", size: 18))
@@ -106,6 +115,6 @@ struct DateView: View {
             .padding(.horizontal)
         }
         .padding(.vertical)
-        .background(Color(.systemGroupedBackground).ignoresSafeArea())
+        .background(Color(.systemGroupedBackground).ignoresSafeArea()) // Background color to match grouped settings.
     }
 }

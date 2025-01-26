@@ -1,13 +1,14 @@
 import SwiftUI
 
+/// A view for the user to log in with email and password.
 struct LoginView: View {
-    @StateObject private var viewModel = LoginViewModel()
-    @Environment(\.dismiss) private var dismiss // Used to dismiss the login screen
+    @StateObject private var viewModel = LoginViewModel() // The view model handling login logic.
+    @Environment(\.dismiss) private var dismiss // Environment variable to dismiss the login screen.
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
-                // Title
+                // MARK: - Title Section
                 VStack(spacing: 8) {
                     Text("Log in")
                         .font(.custom("Poppins-SemiBold", size: 30))
@@ -20,21 +21,21 @@ struct LoginView: View {
 
                 Spacer().frame(height: 20)
 
-                // Email Field
+                // MARK: - Email Input Field
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Email")
                         .font(.custom("Poppins-Regular", size: 20))
                         .foregroundColor(Constants.Design.secondaryColor)
 
                     TextField("e.g christianBale@gmail.com", text: $viewModel.email)
-                        .autocapitalization(.none)
-                        .keyboardType(.emailAddress)
+                        .autocapitalization(.none) // Prevents auto-capitalization for email.
+                        .keyboardType(.emailAddress) // Uses the email keyboard layout.
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .foregroundStyle(.gray)
                 }
                 .padding(.horizontal)
 
-                // Password Field
+                // MARK: - Password Input Field
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Password")
                         .font(.custom("Poppins-Regular", size: 20))
@@ -45,15 +46,16 @@ struct LoginView: View {
                 }
                 .padding(.horizontal)
 
-                // Log In Button
+                // MARK: - Log In Button
                 Button(action: {
                     viewModel.logIn { success in
                         if success {
-                            dismiss() // Dismiss the LoginView to return to the previous screen
+                            dismiss() // Dismiss the LoginView on successful login.
                         }
                     }
                 }) {
                     if viewModel.isLoading {
+                        // Show a loading indicator while login is in progress.
                         ProgressView()
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -62,6 +64,7 @@ struct LoginView: View {
                             .foregroundColor(.white)
                             .padding(.horizontal)
                     } else {
+                        // Default login button.
                         Text("Log In")
                             .font(.custom("Poppins-Medium", size: 20))
                             .foregroundColor(.white)
@@ -72,20 +75,20 @@ struct LoginView: View {
                             .padding(.horizontal)
                     }
                 }
-                .disabled(viewModel.isLoading)
+                .disabled(viewModel.isLoading) // Disable the button when loading.
 
-                // Error Message
+                // MARK: - Error Message
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
                         .font(.custom("Poppins-Regular", size: 14))
-                        .foregroundColor(.red)
+                        .foregroundColor(.red) // Highlight the error in red.
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                 }
 
                 Spacer()
 
-                // Sign Up Text
+                // MARK: - Sign Up Navigation
                 HStack {
                     Text("Don’t have an account?")
                         .font(.custom("Poppins-Regular", size: 14))

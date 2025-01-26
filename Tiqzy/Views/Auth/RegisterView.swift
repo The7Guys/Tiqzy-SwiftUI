@@ -1,13 +1,14 @@
 import SwiftUI
 
+/// A view for user registration, allowing users to create an account.
 struct RegisterView: View {
-    @StateObject private var viewModel = RegisterViewModel()
-    @State private var navigateToProfile = false // Tracks navigation to ProfileView
+    @StateObject private var viewModel = RegisterViewModel() // ViewModel handling registration logic.
+    @State private var navigateToProfile = false // Tracks navigation to the ProfileView on successful registration.
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
-                // Title
+                // MARK: - Title Section
                 VStack(spacing: 8) {
                     Text("Sign Up")
                         .font(.custom("Poppins-SemiBold", size: 30))
@@ -20,7 +21,7 @@ struct RegisterView: View {
 
                 Spacer().frame(height: 20)
 
-                // Name Field
+                // MARK: - Name Input Field
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Name")
                         .font(.custom("Poppins-Regular", size: 20))
@@ -31,20 +32,20 @@ struct RegisterView: View {
                 }
                 .padding(.horizontal)
 
-                // Email Field
+                // MARK: - Email Input Field
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Email")
                         .font(.custom("Poppins-Regular", size: 20))
                         .foregroundColor(Constants.Design.secondaryColor)
 
                     TextField("e.g john.doe@gmail.com", text: $viewModel.email)
-                        .autocapitalization(.none)
-                        .keyboardType(.emailAddress)
+                        .autocapitalization(.none) // Prevents automatic capitalization for email.
+                        .keyboardType(.emailAddress) // Uses an email-optimized keyboard layout.
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                 }
                 .padding(.horizontal)
 
-                // Password Field
+                // MARK: - Password Input Field
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Password")
                         .font(.custom("Poppins-Regular", size: 20))
@@ -55,11 +56,12 @@ struct RegisterView: View {
                 }
                 .padding(.horizontal)
 
-                // Sign Up Button
+                // MARK: - Sign Up Button
                 Button(action: {
-                    viewModel.register()
+                    viewModel.register() // Trigger the registration process.
                 }) {
                     if viewModel.isLoading {
+                        // Show a loading indicator while registration is in progress.
                         ProgressView()
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -68,6 +70,7 @@ struct RegisterView: View {
                             .foregroundColor(.white)
                             .padding(.horizontal)
                     } else {
+                        // Default "Sign Up" button.
                         Text("Sign Up")
                             .font(.custom("Poppins-Medium", size: 20))
                             .foregroundColor(.white)
@@ -78,28 +81,28 @@ struct RegisterView: View {
                             .padding(.horizontal)
                     }
                 }
-                .disabled(viewModel.isLoading)
+                .disabled(viewModel.isLoading) // Disable the button while loading.
 
-                // Error Message
+                // MARK: - Error Message
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
                         .font(.custom("Poppins-Regular", size: 14))
-                        .foregroundColor(.red)
+                        .foregroundColor(.red) // Highlight the error in red.
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                 }
 
-                // Navigation on Successful Registration
+                // MARK: - Navigation on Successful Registration
                 NavigationLink(
-                    destination: ProfileView(),
+                    destination: ProfileView(), // Navigate to ProfileView after successful registration.
                     isActive: $viewModel.isRegistrationSuccessful
                 ) {
-                    EmptyView() // Invisible navigation link
+                    EmptyView() // Invisible navigation link.
                 }
 
                 Spacer()
 
-                // Navigate to Login Screen
+                // MARK: - Navigate to Login Screen
                 HStack {
                     Text("Already have an account?")
                         .font(.custom("Poppins-Regular", size: 14))
@@ -112,7 +115,7 @@ struct RegisterView: View {
                     }
                 }
             }
-            .padding()
+            .padding() // Adds padding around the content.
         }
     }
 }

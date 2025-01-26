@@ -2,25 +2,28 @@ import SwiftUI
 import FirebaseFirestore
 import FirebaseAuth
 
+/// A view that displays the user's tickets.
+/// Handles states for loading, logged-out users, no tickets, and displaying ticket information.
 struct TicketsView: View {
-    @StateObject private var viewModel = TicketsViewModel() // ViewModel instance
-    @State private var selectedTicket: Ticket? // For the QR code popup
-    @State private var navigateToLogin = false // For navigation to LoginView
-    @ObservedObject private var appState = AppState.shared // Observe ticket count
+    @StateObject private var viewModel = TicketsViewModel() // ViewModel instance to manage tickets
+    @State private var selectedTicket: Ticket? // Tracks the ticket for which the QR code popup is displayed
+    @State private var navigateToLogin = false // Tracks navigation to the LoginView
+    @ObservedObject private var appState = AppState.shared // Observes the app state to reset ticket count
 
     var body: some View {
         NavigationStack {
             Group {
+                // MARK: - Loading State
                 if viewModel.isLoading {
-                    // Loading State
                     VStack {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle())
                             .frame(maxWidth: .infinity)
                             .padding()
                     }
-                } else if !viewModel.isLoggedIn {
-                    // Not Logged In State
+                }
+                // MARK: - Not Logged In State
+                else if !viewModel.isLoggedIn {
                     VStack(spacing: 20) {
                         Image(systemName: "person.crop.circle.badge.exclamationmark")
                             .resizable()
@@ -35,7 +38,7 @@ struct TicketsView: View {
                             .padding(.horizontal)
 
                         Button(action: {
-                            navigateToLogin = true
+                            navigateToLogin = true // Navigate to LoginView
                         }) {
                             Text("Log In")
                                 .font(.custom("Poppins-SemiBold", size: 18))
@@ -48,8 +51,9 @@ struct TicketsView: View {
                         .padding(.horizontal)
                     }
                     .padding(.top, 40)
-                } else if viewModel.tickets.isEmpty {
-                    // No Tickets State
+                }
+                // MARK: - No Tickets State
+                else if viewModel.tickets.isEmpty {
                     VStack(spacing: 16) {
                         Image(systemName: "ticket.fill")
                             .resizable()
@@ -64,28 +68,31 @@ struct TicketsView: View {
                             .padding(.horizontal)
                     }
                     .padding(.top, 40)
-                } else {
-                    // Tickets List (Scrollable)
+                }
+                // MARK: - Tickets List
+                else {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 16) {
-                            // Header Title
+                            // Title
                             Text("Your Tickets")
                                 .font(.custom("Poppins-SemiBold", size: 24))
                                 .foregroundColor(.black)
                                 .padding(.horizontal)
                                 .padding(.top)
 
-                            // Grouped Tickets
+                            // Grouped Tickets by Date
                             ForEach(groupTicketsByDate(), id: \.key) { date, ticketsForDate in
                                 VStack(alignment: .leading, spacing: 16) {
-                                    Text(date) // Display the grouped date
+                                    // Date Header
+                                    Text(date)
                                         .font(.custom("Poppins-SemiBold", size: 18))
                                         .foregroundColor(.black)
                                         .padding(.horizontal)
 
+                                    // Tickets for the Date
                                     ForEach(ticketsForDate) { ticket in
                                         TicketCard(ticket: ticket) {
-                                            selectedTicket = ticket // Set selected ticket for popup
+                                            selectedTicket = ticket // Show QR code popup for this ticket
                                         }
                                     }
                                 }
@@ -95,6 +102,7 @@ struct TicketsView: View {
                     .background(Color(.systemGroupedBackground).ignoresSafeArea())
                 }
             }
+            // MARK: - QR Code Popup Overlay
             .overlay(
                 Group {
                     if let ticket = selectedTicket {
@@ -105,21 +113,23 @@ struct TicketsView: View {
                 }
             )
             .onAppear {
-                // Reset ticket count
+                // Reset ticket count in app state
                 appState.newTicketCount = 0
-                
-                // Fetch tickets
+
+                // Fetch tickets from ViewModel
                 viewModel.fetchTickets()
             }
             .navigationDestination(isPresented: $navigateToLogin) {
-                LoginView()
+                LoginView() // Navigate to the login view
             }
         }
     }
 
-    // MARK: - Group Tickets by Date
+    // MARK: - Helper: Group Tickets by Date
+    /// Groups tickets by their `date` property.
+    /// - Returns: An array of tuples containing the date as the key and the associated tickets as the value.
     private func groupTicketsByDate() -> [(key: String, value: [Ticket])] {
         let grouped = Dictionary(grouping: viewModel.tickets, by: { $0.date })
-        return grouped.sorted { $0.key < $1.key }
+        return grouped.sorted { $0.key < $1.key } // Sort dates in ascending order
     }
 }

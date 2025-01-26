@@ -1,7 +1,8 @@
 import SwiftUI
 
+/// A view that displays the user's profile information and options.
 struct ProfileView: View {
-    @StateObject private var viewModel = ProfileViewModel()
+    @StateObject private var viewModel = ProfileViewModel() // ViewModel instance
 
     var body: some View {
         NavigationStack {
@@ -14,12 +15,12 @@ struct ProfileView: View {
                         .foregroundColor(Constants.Design.primaryColor)
 
                     if viewModel.isLoggedIn {
-                        // Show the user's name when logged in
+                        // Display the user's name if logged in
                         Text(viewModel.userName ?? "Guest")
                             .font(.custom("Poppins-SemiBold", size: 34))
                             .foregroundColor(Constants.Design.primaryColor)
                     } else {
-                        // Show "Log In" button when no user is logged in
+                        // Display "Log In" button if not logged in
                         NavigationLink(destination: LoginView()) {
                             Text("Log In")
                                 .font(.custom("Poppins-SemiBold", size: 34))
@@ -87,20 +88,15 @@ struct ProfileView: View {
         }
     }
 
+    /// Provides the corresponding view for a `Destination` item.
     @ViewBuilder
     private func destinationView(for destination: Destination) -> some View {
         switch destination {
-        case .favorites:
-            FavoritesView()
-        case .pastOrders:
-            PastOrdersView()
-        case .payment:
-            PaymentView()
-        case .settings:
+        case .preferences:
             PreferencesView(
-                onComplete: { print("Preferences completed")
-                },
-                showBottomButtons: false)
+                onComplete: { print("Preferences completed") },
+                showBottomButtons: false
+            )
         case .help:
             HelpView()
         }

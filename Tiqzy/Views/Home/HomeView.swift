@@ -1,47 +1,31 @@
 import SwiftUI
 
+/// The main view of the app's home screen, allowing users to search for events, explore cities, and categories.
 struct HomeView: View {
-    @StateObject private var viewModel = HomeViewModel()
-    @State private var showLocationView = false
-    @State private var showDateView = false
-    @State private var navigateToEventListView = false
+    @StateObject private var viewModel = HomeViewModel() // ViewModel to manage the home screen's data and state.
+    @State private var showLocationView = false // Tracks whether the location selection view is displayed.
+    @State private var showDateView = false // Tracks whether the date selection view is displayed.
+    @State private var navigateToEventListView = false // Tracks whether to navigate to the EventListView.
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    // Header Section
+                    
+                    // MARK: - Header Section
                     HStack {
-                        Image("Logo") // Logo from assets
+                        Image("Logo") // App logo from assets.
                             .resizable()
                             .scaledToFit()
                             .frame(width: 270, height: 60)
 
                         Spacer()
-
-                        Button(action: {
-                            // Notification action (if needed)
-                        }) {
-                            ZStack {
-                                Image(systemName: "bell.fill")
-                                    .font(.title2)
-                                    .foregroundColor(Constants.Design.primaryColor)
-                                if viewModel.notificationsCount > 0 {
-                                    Text("\(viewModel.notificationsCount)")
-                                        .font(.caption)
-                                        .foregroundColor(.white)
-                                        .padding(4)
-                                        .background(Color.red)
-                                        .clipShape(Circle())
-                                        .offset(x: 8, y: -10)
-                                }
-                            }
-                        }
                     }
                     .padding(.horizontal)
-
-                    // Search Section
+                    
+                    // MARK: - Search Section
                     VStack(spacing: 8) {
+                        // Location Selection Button
                         Button(action: {
                             showLocationView = true
                         }) {
@@ -56,7 +40,10 @@ struct HomeView: View {
                                 Spacer()
                             }
                             .padding()
-                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.5)))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.gray.opacity(0.5))
+                            )
                         }
                         .sheet(isPresented: $showLocationView) {
                             LocationView { selectedLocation in
@@ -64,6 +51,7 @@ struct HomeView: View {
                             }
                         }
 
+                        // Date Selection Button
                         Button(action: {
                             showDateView = true
                         }) {
@@ -78,7 +66,10 @@ struct HomeView: View {
                                 Spacer()
                             }
                             .padding()
-                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.5)))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.gray.opacity(0.5))
+                            )
                         }
                         .sheet(isPresented: $showDateView) {
                             DateView { selectedDate in
@@ -86,6 +77,7 @@ struct HomeView: View {
                             }
                         }
 
+                        // Hidden NavigationLink to EventListView
                         NavigationLink(
                             destination: EventListView(
                                 selectedLocation: viewModel.selectedLocation,
@@ -96,6 +88,7 @@ struct HomeView: View {
                             EmptyView()
                         }
 
+                        // Search Button
                         Button(action: {
                             navigateToEventListView = true
                         }) {
@@ -110,7 +103,7 @@ struct HomeView: View {
                     }
                     .padding(.horizontal)
 
-                    // Explore Cities Section
+                    // MARK: - Explore Cities Section
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Explore Cities")
                             .font(.custom("Poppins-SemiBold", size: 18))
@@ -122,12 +115,12 @@ struct HomeView: View {
                                 ForEach(viewModel.cities, id: \.self) { city in
                                     NavigationLink(
                                         destination: EventListView(
-                                            selectedLocation: city.description, // Pass city description to EventListView
-                                            selectedDate:"Anytime" // Keep the current date filter
+                                            selectedLocation: city.description, // Pass city to EventListView.
+                                            selectedDate: "Anytime" // Use default date filter.
                                         )
                                     ) {
                                         ZStack(alignment: .bottomLeading) {
-                                            Image(city.description) // Placeholder image
+                                            Image(city.description) // Placeholder image for city.
                                                 .resizable()
                                                 .scaledToFill()
                                                 .frame(width: 150, height: 150)
@@ -141,7 +134,7 @@ struct HomeView: View {
                                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                                                 )
 
-                                            Text(city.description) // Use `description` for the city name
+                                            Text(city.description) // City name overlay.
                                                 .font(.custom("Poppins-SemiBold", size: 14))
                                                 .foregroundColor(.white)
                                                 .padding([.leading, .bottom], 8)
@@ -153,60 +146,48 @@ struct HomeView: View {
                         }
                     }
 
-                    // Explore Categories Section
-                                        VStack(alignment: .leading, spacing: 12) {
-                                            Text("Explore Categories")
-                                                .font(.custom("Poppins-SemiBold", size: 18))
-                                                .foregroundColor(Constants.Design.primaryColor)
-                                                .padding(.horizontal)
+                    // MARK: - Explore Categories Section
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Explore Categories")
+                            .font(.custom("Poppins-SemiBold", size: 18))
+                            .foregroundColor(Constants.Design.primaryColor)
+                            .padding(.horizontal)
 
-                                            ScrollView(.horizontal, showsIndicators: false) {
-                                                HStack(spacing: 16) {
-                                                    ForEach(viewModel.categories, id: \.self) { category in
-                                                        NavigationLink(
-                                                            destination: EventListView(
-                                                                selectedLocation: "Anywhere",
-                                                                selectedDate: "Anytime",
-                                                                selectedCategories: [category] // Pass the selected category
-                                                            )
-                                                        ) {
-                                                            ZStack(alignment: .bottomLeading) {
-                                                                Image(category.description) // Placeholder image
-                                                                    .resizable()
-                                                                    .scaledToFill()
-                                                                    .frame(width: 150, height: 150)
-                                                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                                                    .overlay(
-                                                                        LinearGradient(
-                                                                            colors: [Color.black.opacity(0.6), Color.clear],
-                                                                            startPoint: .bottom,
-                                                                            endPoint: .center
-                                                                        )
-                                                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                                                    )
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 16) {
+                                ForEach(viewModel.categories, id: \.self) { category in
+                                    NavigationLink(
+                                        destination: EventListView(
+                                            selectedLocation: "Anywhere",
+                                            selectedDate: "Anytime",
+                                            selectedCategories: [category] // Pass category to EventListView.
+                                        )
+                                    ) {
+                                        ZStack(alignment: .bottomLeading) {
+                                            Image(category.description) // Placeholder for category.
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: 150, height: 150)
+                                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                                .overlay(
+                                                    LinearGradient(
+                                                        colors: [Color.black.opacity(0.6), Color.clear],
+                                                        startPoint: .bottom,
+                                                        endPoint: .center
+                                                    )
+                                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                                )
 
-                                                                Text(category.description)
-                                                                    .font(.custom("Poppins-SemiBold", size: 14))
-                                                                    .foregroundColor(.white)
-                                                                    .padding([.leading, .bottom], 8)
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                .padding(.horizontal)
+                                            Text(category.description) // Category name overlay.
+                                                .font(.custom("Poppins-SemiBold", size: 14))
+                                                .foregroundColor(.white)
+                                                .padding([.leading, .bottom], 8)
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
                         }
-                    }
-
-                    // Reset Onboarding Button
-                    Button(action: {
-                        UserDefaults.standard.set(false, forKey: "hasSeenOnboarding")
-                    }) {
-                        Text("Reset Onboarding")
-                            .font(.custom("Poppins-Regular", size: 16))
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(Constants.Design.secondaryColor)
-                            .cornerRadius(12)
                     }
                 }
                 .padding(.vertical)

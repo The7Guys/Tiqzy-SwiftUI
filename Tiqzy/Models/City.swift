@@ -1,3 +1,6 @@
+import Foundation
+
+/// Represents major cities in the Netherlands, categorized by their respective regions.
 enum City: String, CaseIterable, Hashable {
     case amsterdam = "Amsterdam"
     case rotterdam = "Rotterdam"
@@ -52,10 +55,12 @@ enum City: String, CaseIterable, Hashable {
     case schiedam = "Schiedam"
     case lelystad = "Lelystad"
 
+    /// A human-readable description of the city.
     var description: String {
         self.rawValue
     }
 
+    /// Returns the Dutch province or region where the city is located.
     var region: String {
         switch self {
         case .amsterdam, .haarlemmermeer, .haarlem, .alkmaar, .purmerend:
@@ -80,6 +85,10 @@ enum City: String, CaseIterable, Hashable {
             return "Zeeland"
         case .leeuwarden, .assen, .emmen, .hoogeveen, .sneek:
             return "Friesland & Drenthe"
+        case .zwijndrecht:
+            return "Zuid-Holland" 
+        case .alkmaarZaanstad:
+            return "Noord-Holland"
         @unknown default:
             return "Unknown Region" // Prevents crashing for unknown cases
         }

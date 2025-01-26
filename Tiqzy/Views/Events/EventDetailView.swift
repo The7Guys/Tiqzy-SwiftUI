@@ -11,6 +11,10 @@ struct EventDetailView: View {
     @State private var showShareSheet = false // State for triggering share sheet
     @Environment(\.modelContext) private var modelContext // Access Swift Data context
     @State private var isFavorite: Bool = false // Tracks if the event is a favorite
+    @State private var selectedTimeframe: String? // Tracks selected timeframe
+    @State private var showTimeframes = false // Tracks whether timeframes should be displayed
+    @State private var selectedDate: Date = Date() // Tracks selected date
+    @State private var showLoginScreen = false // State for showing the login screen
     private let db = Firestore.firestore() // Firestore instance
     
     init(eventID: Int) {
@@ -20,39 +24,36 @@ struct EventDetailView: View {
     
     var body: some View {
         ZStack {
-            // Main Content
             if viewModel.isLoading {
-                // Display a full-screen loading indicator while data is loading
+                // Full-screen loading indicator
                 VStack {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle())
-                        .scaleEffect(1.5) // Make it larger for emphasis
+                        .scaleEffect(1.5) // Larger for emphasis
                     Text("Loading event details...")
                         .font(.custom("Poppins-Medium", size: 18))
                         .foregroundColor(Constants.Design.primaryColor)
                         .padding(.top, 16)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color(.systemBackground)) // Matches app background
+                .background(Color(.systemBackground))
                 .ignoresSafeArea()
             } else {
-                // Show actual content once loading is complete
+                // Main Content
                 ScrollView {
                     VStack(spacing: 16) {
                         ZStack {
                             // Event Image
                             AsyncImage(url: URL(string: viewModel.event?.imageURL ?? "")) { phase in
                                 if let image = phase.image {
-                                    // Successfully loaded image
                                     image
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: UIScreen.main.bounds.width - 32, height: 400)
                                         .clipped()
                                         .cornerRadius(12)
-                                        .transition(.opacity) // Smooth transition
+                                        .transition(.opacity)
                                 } else if phase.error != nil {
-                                    // Error loading image, show fallback
                                     Image("EventImage")
                                         .resizable()
                                         .scaledToFill()
@@ -60,19 +61,17 @@ struct EventDetailView: View {
                                         .clipped()
                                         .cornerRadius(12)
                                 } else {
-                                    // Placeholder while loading
                                     ZStack {
-                                        Color.gray.opacity(0.2) // Placeholder background
+                                        Color.gray.opacity(0.2)
                                             .frame(width: UIScreen.main.bounds.width - 32, height: 400)
                                             .cornerRadius(12)
-                                        
-                                        ProgressView() // Loading spinner
-                                            .scaleEffect(1.5) // Adjust size of spinner
+                                        ProgressView()
+                                            .scaleEffect(1.5)
                                     }
                                 }
                             }
                             
-                            // Top-right "X" Button
+                            // Top-right Close Button
                             VStack {
                                 HStack {
                                     Spacer()
@@ -89,7 +88,7 @@ struct EventDetailView: View {
                                 Spacer()
                             }
                             
-                            // Bottom-right action buttons
+                            // Bottom-right Action Buttons
                             VStack {
                                 Spacer()
                                 HStack {
@@ -136,28 +135,11 @@ struct EventDetailView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal)
                         
-                        // Price Section
-                        HStack {
-                            Image(systemName: "location.fill")
-                                .foregroundColor(Constants.Design.primaryColor)
-                            Text(viewModel.event?.location ?? "")
-                                .font(.custom("Poppins-Regular", size: 18))
-                                .foregroundColor(Constants.Design.primaryColor)
-                            Spacer()
-                            Text("from")
-                                .font(.custom("Poppins-Regular", size: 14))
-                                .foregroundColor(Constants.Design.primaryColor)
-                                .offset(y: 5)
-                            Text(
-                                viewModel.event != nil ? "\(String(format: "%.2f€", viewModel.event!.price!))" : ""
-                            )
-                            .font(.custom("Poppins-Regular", size: 28))
-                            .foregroundColor(Constants.Design.primaryColor)
-                        }
-                        .padding(.horizontal)
+                        // Date and Timeframe Pickers
+                        dateAndTimeframePickers
                         
                         // Buy Ticket Button
-                        Button(action: saveTicket) {
+                        Button(action: handleBuyTicket) {
                             Text("Buy Ticket")
                                 .font(.custom("Poppins-Medium", size: 24))
                                 .frame(maxWidth: .infinity)
@@ -196,10 +178,103 @@ struct EventDetailView: View {
         .sheet(isPresented: $showShareSheet) {
             ShareSheet(activityItems: viewModel.generateShareContent())
         }
+        .sheet(isPresented: $showLoginScreen) {
+            LoginView() // Your custom LoginView
+        }
         .onAppear {
             viewModel.loadEventDetails()
         }
         .navigationBarHidden(true)
+    }
+    
+    // MARK: - Subviews
+    private var dateAndTimeframePickers: some View {
+        VStack(spacing: 16) {
+            // Date Picker Section
+            HStack {
+                Text("Select Date")
+                    .font(.custom("Poppins-Medium", size: 18))
+                    .foregroundColor(Constants.Design.primaryColor)
+                
+                Spacer()
+                
+                DatePicker(
+                    "",
+                    selection: $selectedDate,
+                    in: Date()...,
+                    displayedComponents: .date
+                )
+                .datePickerStyle(.compact)
+                .accentColor(Constants.Design.primaryColor)
+            }
+            .padding(.horizontal)
+            
+            // Timeframe Picker Section
+            HStack {
+                Text("Select Timeframe")
+                    .font(.custom("Poppins-Medium", size: 18))
+                    .foregroundColor(Constants.Design.primaryColor)
+                
+                Spacer()
+                
+                Button(action: {
+                    withAnimation {
+                        showTimeframes.toggle()
+                    }
+                }) {
+                    Text(selectedTimeframe ?? "Choose")
+                        .font(.custom("Poppins-Regular", size: 16))
+                        .foregroundColor(Constants.Design.primaryColor)
+                        .padding(.horizontal, 8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Constants.Design.primaryColor, lineWidth: 1)
+                        )
+                }
+            }
+            .padding(.horizontal)
+            
+            if showTimeframes {
+                VStack(spacing: 8) {
+                    ForEach(generateTimeframes(), id: \.self) { timeframe in
+                        Button(action: {
+                            selectedTimeframe = timeframe
+                            withAnimation {
+                                showTimeframes = false
+                            }
+                        }) {
+                            Text(timeframe)
+                                .font(.custom("Poppins-Regular", size: 16))
+                                .frame(maxWidth: .infinity)
+                                .padding(10)
+                                .background(selectedTimeframe == timeframe ? Constants.Design.secondaryColor : Color(.systemGroupedBackground))
+                                .foregroundColor(selectedTimeframe == timeframe ? .white : .primary)
+                                .cornerRadius(8)
+                        }
+                    }
+                }
+                .transition(.opacity)
+                .padding(.horizontal)
+            }
+        }
+    }
+    
+    // MARK: - Helper Methods
+    private func generateTimeframes() -> [String] {
+        var timeframes: [String] = []
+        for hour in 10..<22 {
+            timeframes.append("\(hour):00 - \(hour + 1):00")
+        }
+        return timeframes
+    }
+    
+    private func handleBuyTicket() {
+        if Auth.auth().currentUser == nil {
+            // Show login screen if the user is not logged in
+            showLoginScreen = true
+        } else {
+            saveTicket()
+        }
     }
     
     private func saveTicket() {
@@ -215,8 +290,8 @@ struct EventDetailView: View {
             "name": event.title,
             "imageURL": event.imageURL ?? "",
             "location": event.venueAddress ?? "",
-            "date": event.startDate,
-            "timeframe": "\(event.startDate) - \(event.endDate)"
+            "date": DateFormatter.localizedString(from: selectedDate, dateStyle: .medium, timeStyle: .none),
+            "timeframe": selectedTimeframe ?? "Not selected"
         ]
         
         // Use the TicketService to save the ticket
@@ -226,15 +301,12 @@ struct EventDetailView: View {
                 print("Error saving ticket: \(error.localizedDescription)")
             } else {
                 print("Ticket saved successfully!")
-                
-                // Increment the ticket count
                 DispatchQueue.main.async {
                     AppState.shared.newTicketCount += 1
                 }
             }
         }
     }
-
     /// Manages the favorite state of the event.
     private func toggleFavorite() {
         guard let event = viewModel.event else { return }
@@ -305,6 +377,3 @@ struct ShareSheet: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
-#Preview {
-    EventDetailView(eventID: 1762)
-}

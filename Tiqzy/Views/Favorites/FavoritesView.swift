@@ -1,28 +1,30 @@
 import SwiftUI
 import SwiftData
 
+/// A view displaying the user's favorite events. If no favorites exist, a placeholder message is shown.
 struct FavoritesView: View {
-    @Environment(\.modelContext) private var modelContext // Access SwiftData context
-    @Query var favorites: [Event] // Fetch favorite events
-    
+    @Environment(\.modelContext) private var modelContext // Access the SwiftData context for data operations.
+    @Query var favorites: [Event] // Query to fetch favorite events from the SwiftData context.
+
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading) {
-                // Title
+                // MARK: - Title Section
                 Text("Your Favorite Events")
                     .font(.custom("Poppins-SemiBold", size: 28))
                     .foregroundColor(Constants.Design.primaryColor)
-                    .padding(.horizontal)
-                    .padding(.top)
-                
+                    .padding(.horizontal) // Add horizontal padding.
+                    .padding(.top) // Add top padding.
+
+                // MARK: - Content Section
                 if favorites.isEmpty {
-                    // Improved "No Favorites" UI - Adjusted for content position
+                    // Display a message and placeholder image when there are no favorite events.
                     VStack(spacing: 20) {
-                        Image("EmptyFavorites") // Add a placeholder image
+                        Image("EmptyFavorites") // Placeholder image for empty state.
                             .resizable()
                             .scaledToFit()
                             .frame(width: 200, height: 200)
-                            .padding(.top, 40) // Slightly more space from the title
+                            .padding(.top, 40) // Space from the title.
 
                         Text("No favorite events yet!")
                             .font(.custom("Poppins-SemiBold", size: 20))
@@ -33,26 +35,27 @@ struct FavoritesView: View {
                             .font(.custom("Poppins-Regular", size: 16))
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
-                            .padding(.horizontal, 40)
+                            .padding(.horizontal, 40) // Horizontal padding for better alignment.
                     }
-                    .frame(maxHeight: .infinity, alignment: .top) // Align content closer to the top
+                    .frame(maxHeight: .infinity, alignment: .top) // Align content closer to the top of the screen.
                 } else {
-                    // Display favorite events using EventCard
+                    // MARK: - Favorite Events Section
+                    // Display a scrollable list of favorite events.
                     ScrollView {
                         VStack(spacing: 16) {
                             ForEach(favorites) { favorite in
                                 NavigationLink(destination: EventDetailView(eventID: favorite.id)) {
-                                    EventCard(event: favorite)
+                                    EventCard(event: favorite) // Use the EventCard to display each favorite event.
                                 }
-                                .buttonStyle(PlainButtonStyle()) // To prevent the default button style
+                                .buttonStyle(PlainButtonStyle()) // Removes default button style for a cleaner look.
                             }
                         }
-                        .padding(.horizontal)
+                        .padding(.horizontal) // Add horizontal padding around the list.
                     }
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .background(Color(.systemGroupedBackground).ignoresSafeArea())
+            .navigationBarTitleDisplayMode(.inline) // Set the title display mode to inline.
+            .background(Color(.systemGroupedBackground).ignoresSafeArea()) // Set background color.
         }
     }
 }

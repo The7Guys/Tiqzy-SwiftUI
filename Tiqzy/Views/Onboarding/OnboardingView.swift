@@ -1,15 +1,15 @@
 import SwiftUI
 
+/// The onboarding screen guiding the user through slides and transitions to PreferencesView or ContentView.
 struct OnboardingView: View {
-    @StateObject private var viewModel = OnboardingViewModel()
-    @State private var showPreferencesView = false // Tracks transition to PreferencesView
-    @State private var showContentView = false // Tracks transition to ContentView
+    @StateObject private var viewModel = OnboardingViewModel() // ViewModel handling onboarding logic.
 
     var body: some View {
         ZStack {
-            // Onboarding Slides
-            if !showPreferencesView && !showContentView {
+            // MARK: - Onboarding Slides
+            if !viewModel.showPreferencesView && !viewModel.showContentView {
                 VStack(spacing: 20) {
+                    // TabView for onboarding slides
                     TabView(selection: $viewModel.currentPage) {
                         ForEach(0..<viewModel.slides.count, id: \.self) { index in
                             VStack {
@@ -39,14 +39,8 @@ struct OnboardingView: View {
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                     .animation(.easeInOut, value: viewModel.currentPage)
 
-                    Button(action: {
-                        viewModel.nextPage()
-                        if viewModel.isOnboardingComplete {
-                            withAnimation(.easeInOut(duration: 1.0)) {
-                                showPreferencesView = true
-                            }
-                        }
-                    }) {
+                    // Next/Get Started Button
+                    Button(action: viewModel.nextPage) {
                         Text(viewModel.currentPage == viewModel.slides.count - 1 ? "Get Started" : "Next")
                             .font(.custom("Poppins-Medium", size: 22))
                             .foregroundColor(.white)
@@ -57,6 +51,7 @@ struct OnboardingView: View {
                             .padding(.horizontal)
                     }
 
+                    // Page Indicators
                     HStack {
                         ForEach(0..<viewModel.slides.count, id: \.self) { index in
                             Circle()
@@ -69,31 +64,24 @@ struct OnboardingView: View {
                 .transition(.opacity)
             }
 
-            // Preferences View
-            if showPreferencesView && !showContentView {
+            // MARK: - Preferences View
+            if viewModel.showPreferencesView && !viewModel.showContentView {
                 PreferencesView(onComplete: {
                     withAnimation(.easeInOut(duration: 1.0)) {
-                        completeOnboarding()
+                        viewModel.completePreferences()
                     }
                 })
                 .transition(.opacity)
             }
 
-            // ContentView
-            if showContentView {
+            // MARK: - ContentView
+            if viewModel.showContentView {
                 ContentView()
                     .transition(.opacity)
             }
         }
         .onAppear {
-            if UserDefaults.standard.bool(forKey: "hasSeenOnboarding") {
-                showContentView = true
-            }
+            viewModel.checkIfOnboardingSeen()
         }
-    }
-
-    private func completeOnboarding() {
-        UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
-        showContentView = true
     }
 }
